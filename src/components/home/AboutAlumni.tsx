@@ -65,10 +65,10 @@ const AboutAlumni: React.FC = () => {
           >
             <div className="grid grid-cols-2 gap-4 about-img-collage">
               {[
-                              { src: '/image 1.jpg', alt: 'Campus' },
-                { src: '/image 2.jpg', alt: 'Students' },
-                { src: '/image 3.jpg', alt: 'Graduation' },
-                { src: '/image 4.jpg', alt: 'Alumni' },
+                              { src: '/image%201.jpg', alt: 'Campus' },
+                { src: '/image%202.jpg', alt: 'Students' },
+                { src: '/image%203.jpg', alt: 'Graduation' },
+                { src: '/image%204.jpg', alt: 'Alumni' },
               ].map((img) => (
                 <img
                   key={img.alt}
