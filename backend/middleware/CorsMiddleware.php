@@ -14,6 +14,8 @@ class CorsMiddleware
 
         $allowed = [
             $frontendUrl,
+            'https://campusalumni.in',
+            'https://www.campusalumni.in',
             'http://localhost:5173',
             'http://localhost:3000',
             'http://127.0.0.1:5173',
