@@ -43,7 +43,7 @@ EOF
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: /public_html/
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
