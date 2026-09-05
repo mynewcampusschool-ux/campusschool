@@ -35,3 +35,4 @@ fixsql.cjs
 makezip.cjs
 convertsql.cjs
 _ziplist.txt
+backend/.git_disabled/
