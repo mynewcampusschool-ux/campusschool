@@ -42,26 +42,35 @@ jobs:
           server-dir: /public_html/
           dangerous-clean-slate: false
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install backend dependencies
+        run: composer install --no-dev --optimize-autoloader
+        working-directory: ./backend
+
       - name: Create backend .env
         run: |
-          cat > backend/.env << 'EOF'
-          APP_NAME="Campus School Pantnagar Alumni Portal"
-          APP_URL=https://campusalumni.in
-          APP_ENV=production
-          FRONTEND_URL=https://campusalumni.in
-          DB_HOST=localhost
-          DB_PORT=3306
-          DB_NAME=u763367215_campusschool
-          DB_USER=u763367215_campusschool
-          DB_PASS=Campus@2026@
-          JWT_SECRET=cspp_alumni_campusalumni_2024_xK9mP2qRvL8nT5wZ
-          JWT_EXPIRY=3600
-          JWT_REFRESH_EXPIRY=604800
-          UPLOAD_MAX_SIZE=10485760
-          UPLOAD_PATH=uploads/
-          RATE_LIMIT_REQUESTS=60
-          RATE_LIMIT_WINDOW=60
-          EOF
+          cat > backend/.env <<'EOF'
+APP_NAME="Campus School Pantnagar Alumni Portal"
+APP_URL=https://campusalumni.in
+APP_ENV=production
+FRONTEND_URL=https://campusalumni.in
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=u763367215_campusschool
+DB_USER=u763367215_campusschool
+DB_PASS=Campus@2026@
+JWT_SECRET=cspp_alumni_campusalumni_2024_xK9mP2qRvL8nT5wZ
+JWT_EXPIRY=3600
+JWT_REFRESH_EXPIRY=604800
+UPLOAD_MAX_SIZE=10485760
+UPLOAD_PATH=uploads/
+RATE_LIMIT_REQUESTS=60
+RATE_LIMIT_WINDOW=60
+EOF
 
       - name: Deploy backend to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -74,5 +83,4 @@ jobs:
           exclude: |
             **/.git_disabled/**
             **/database/**
-            **/.env
           dangerous-clean-slate: false
