@@ -37,7 +37,7 @@ jobs:
         with:
           server: ftp.campusalumni.in
           username: u763367215
-          password: ${{ secrets.FTP_PASSWORD }}
+          password: Campus@2026@
           local-dir: ./dist/
           server-dir: /public_html/
           dangerous-clean-slate: false
