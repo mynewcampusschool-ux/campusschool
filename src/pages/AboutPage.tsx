@@ -115,6 +115,80 @@ const AboutPage: React.FC = () => (
         ))}
       </div>
 
+      {/* Notable Alumni */}
+      <div className="mb-20">
+        <div className="text-center mb-12">
+          <span className="text-primary font-semibold text-sm uppercase tracking-widest">Pride of Our School</span>
+          <h2 className="section-title mt-2">Notable Alumni</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            {
+              name: 'Brigadier Osiris Das',
+              batch: '1990 Batch',
+              image: '/about1.jpeg',
+              role: 'Indian Army | Kirti Chakra Awardee',
+              pos: '50% 15%',
+              scale: 'none',
+              origin: 'center',
+              intro: "Awarded the Kirti Chakra (2008) — India's second-highest peacetime gallantry award — for bravery in counter-terrorism operations in J&K. Conferred the Vishisht Seva Medal (2023) for commanding a brigade along the India-China border. Served as Defence Attaché at the Embassy of India in Beijing.",
+            },
+            {
+              name: 'Dr. Saurabh Shukla',
+              batch: 'Campus School Alumni',
+              image: '/about2.jpeg',
+              role: 'Joint Director, Parliament of India',
+              pos: '50% 50%',
+              scale: 'none',
+              origin: 'center',
+              intro: 'Distinguished public-sector professional with 20+ years of experience across the Parliament of India, Ministry of Rural Development, and Competition Commission of India. Ph.D. in Library & Information Science from Jiwaji University.',
+            },
+            {
+              name: 'Deepti Mehra',
+              batch: '1999 Batch',
+              image: '/about3.jpeg',
+              role: 'Deputy Director, CII-FACE',
+              pos: '50% 15%',
+              scale: 'none',
+              origin: 'center',
+              intro: 'Policy and advocacy professional with 15+ years working with central & state governments and multilateral organisations. Specialises in agri-sector policy and stakeholder engagement. MBA in Agribusiness from G.B. Pant University.',
+            },
+          ].map((a, i) => (
+            <motion.div
+              key={a.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i + 0.2 }}
+              className="bg-white rounded-2xl shadow-card border border-border/50 overflow-hidden hover:shadow-premium hover:-translate-y-1 transition-all duration-300 flex flex-col"
+            >
+              {/* Image — square crop, face centered */}
+              <div style={{ width: '100%', aspectRatio: '1/1', overflow: 'hidden', background: '#f3f4f6' }}>
+                <img
+                  src={a.image}
+                  alt={a.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: a.pos,
+                    transform: a.scale,
+                    transformOrigin: a.origin,
+                    display: 'block',
+                  }}
+                />
+              </div>
+              {/* Content */}
+              <div className="p-5 flex flex-col flex-1">
+                <span className="text-xs font-semibold text-primary uppercase tracking-widest">{a.batch}</span>
+                <h3 className="font-black text-text text-base mt-1 mb-0.5">{a.name}</h3>
+                <p style={{ color: '#D4AF37', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.6rem' }}>{a.role}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{a.intro}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
       {/* Timeline */}
       <div className="mb-16">
         <div className="text-center mb-12">
