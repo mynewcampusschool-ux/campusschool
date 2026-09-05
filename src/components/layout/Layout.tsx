@@ -139,7 +139,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen flex flex-col">
     <ScrollToTop />
     <Header />
-    <main className="flex-1 pt-[68px] md:pt-[112px]">{children}</main>
+    <main className="flex-1" style={{ paddingTop: '68px' }}>{children}</main>
     <Footer />
     <ContactButtons />
     <BackToTop />

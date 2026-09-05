@@ -414,6 +414,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   /* ── Profile header cover ── */
   .h-44 { height: 9rem !important; }
 
+  /* ── Notable Alumni cards — 1 col on mobile ── */
+  .notable-alumni-grid { grid-template-columns: 1fr !important; }
+
+  /* ── About page image collage fix ── */
+  .about-img-collage img { height: 130px !important; }
+
   /* ── Stat pills smaller ── */
   .stat-pill-mobile { padding: 0.35rem 0.5rem !important; }
 }
