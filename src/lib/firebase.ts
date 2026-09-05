@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey:            'AIzaSyCM_MFB_oe_PSlK8xdmOxoVOZcFWNHwdYE',
+  authDomain:        'cspp-2a134-f66d4.firebaseapp.com',
+  projectId:         'cspp-2a134-f66d4',
+  storageBucket:     'cspp-2a134-f66d4.firebasestorage.app',
+  messagingSenderId: '80639183490',
+  appId:             '1:80639183490:web:a70f285740abd93ca6029b',
+  measurementId:     'G-W8BVR7ZB31',
 };
 
 // Primary app — used by normal users
