@@ -20,13 +20,13 @@ jobs:
 
       - name: Create .env
         run: |
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
-          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
-          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env
-          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env
-          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
-          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
+          echo "VITE_API_URL=https://csp-backend-production.railway.app/api" >> .env
+          echo "VITE_FIREBASE_API_KEY=AIzaSyAJnEk9kRnQnt-mmgKh9t0XOgKSRZWVTOA" >> .env
+          echo "VITE_FIREBASE_AUTH_DOMAIN=cspp-2a134.firebaseapp.com" >> .env
+          echo "VITE_FIREBASE_PROJECT_ID=cspp-2a134" >> .env
+          echo "VITE_FIREBASE_STORAGE_BUCKET=cspp-2a134.firebasestorage.app" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=871663305723" >> .env
+          echo "VITE_FIREBASE_APP_ID=1:871663305723:web:a5747e0027015938d8015e" >> .env
           echo "VITE_STORAGE_KEY=profile_v1" >> .env
 
       - name: Build
