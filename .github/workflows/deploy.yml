@@ -10,12 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ── Frontend ────────────────────────────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
       - name: Create frontend .env
@@ -45,10 +46,12 @@ EOF
           server-dir: /public_html/
           dangerous-clean-slate: false
 
+      # ── Backend ─────────────────────────────────────────────────────────────
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
+          tools: composer:v2
 
       - name: Install backend dependencies
         run: composer install --no-dev --optimize-autoloader
@@ -65,8 +68,8 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=u763367215_campusschool
 DB_USER=u763367215_campusschool
-DB_PASS=${{ secrets.DB_PASS }}
-JWT_SECRET=${{ secrets.JWT_SECRET }}
+DB_PASS=Campus@2026@
+JWT_SECRET=cspp_alumni_campusalumni_2024_xK9mP2qRvL8nT5wZ
 JWT_EXPIRY=3600
 JWT_REFRESH_EXPIRY=604800
 UPLOAD_MAX_SIZE=10485760
