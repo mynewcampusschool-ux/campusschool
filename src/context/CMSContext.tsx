@@ -112,12 +112,10 @@ const DEFAULT_TICKER: TickerItem[] = [
 ];
 
 const DEFAULT_STATS: StatItem[] = [
-  { id: 1, label: 'Schools', value: 7, suffix: '' },
-  { id: 2, label: 'Teachers', value: 50, suffix: '+' },
-  { id: 3, label: 'Students', value: 1000, suffix: '+' },
-  { id: 4, label: 'Registered Alumni', value: 55, suffix: '' },
-  { id: 5, label: 'Companies', value: 10, suffix: '+' },
-  { id: 6, label: 'Countries', value: 25, suffix: '+' },
+  { id: 1, label: 'Years of Excellence', value: 54, suffix: '+' },
+  { id: 2, label: 'Registered Alumni', value: 55, suffix: '' },
+  { id: 3, label: 'Companies', value: 10, suffix: '+' },
+  { id: 4, label: 'Countries', value: 25, suffix: '+' },
 ];
 
 const DEFAULT_QUICK_ACCESS: QuickAccessCard[] = [
@@ -178,7 +176,7 @@ const DEFAULT_STORE: CMSStore = {
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
 const LS_KEY = 'csp_cms_store';
-const LS_VERSION = 7; // bumped — default gallery + stats update
+const LS_VERSION = 8; // bumped — stats reduced to 4
 
 // ── Field-level sanitisers ────────────────────────────────────────────────────
 

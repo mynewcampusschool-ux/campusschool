@@ -1,7 +1,7 @@
 import React from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { FiHome, FiBriefcase, FiUsers, FiUserCheck, FiGrid, FiGlobe } from 'react-icons/fi';
+import { FiAward, FiUserCheck, FiBriefcase, FiGlobe } from 'react-icons/fi';
 import { useCMS } from '../../context/CMSContext';
 
 const Counter: React.FC<{ end: number; suffix: string; active: boolean }> = ({ end, suffix, active }) => {
@@ -20,7 +20,7 @@ const Counter: React.FC<{ end: number; suffix: string; active: boolean }> = ({ e
   return <span>{count.toLocaleString()}<span style={{ color: '#D4AF37' }}>{suffix}</span></span>;
 };
 
-const ICONS = [FiHome, FiBriefcase, FiUsers, FiUserCheck, FiGrid, FiGlobe];
+const ICONS = [FiAward, FiUserCheck, FiBriefcase, FiGlobe];
 
 const StatsSection: React.FC = () => {
   const { cms } = useCMS();
@@ -45,7 +45,7 @@ const StatsSection: React.FC = () => {
           {/* Top accent bar */}
           <div style={{ height: 4, background: 'linear-gradient(90deg, #0B6B4B 0%, #D4AF37 50%, #0B6B4B 100%)' }} />
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 stats-mobile-grid">
+          <div className="grid grid-cols-2 md:grid-cols-4">
             {(cms.stats ?? []).map((stat, i) => {
               const Icon = ICONS[i % ICONS.length];
               return (
