@@ -21,12 +21,13 @@ jobs:
       - name: Create .env
         run: |
           echo "VITE_API_URL=https://campusalumni.in/backend/api" >> .env
-          echo "VITE_FIREBASE_API_KEY=AIzaSyAJnEk9kRnQnt-mmgKh9t0XOgKSRZWVTOA" >> .env
-          echo "VITE_FIREBASE_AUTH_DOMAIN=cspp-2a134.firebaseapp.com" >> .env
-          echo "VITE_FIREBASE_PROJECT_ID=cspp-2a134" >> .env
-          echo "VITE_FIREBASE_STORAGE_BUCKET=cspp-2a134.firebasestorage.app" >> .env
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=871663305723" >> .env
-          echo "VITE_FIREBASE_APP_ID=1:871663305723:web:a5747e0027015938d8015e" >> .env
+          echo "VITE_FIREBASE_API_KEY=AIzaSyCM_MFB_oe_PSlK8xdmOxoVOZcFWNHwdYE" >> .env
+          echo "VITE_FIREBASE_AUTH_DOMAIN=cspp-2a134-f66d4.firebaseapp.com" >> .env
+          echo "VITE_FIREBASE_PROJECT_ID=cspp-2a134-f66d4" >> .env
+          echo "VITE_FIREBASE_STORAGE_BUCKET=cspp-2a134-f66d4.firebasestorage.app" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=80639183490" >> .env
+          echo "VITE_FIREBASE_APP_ID=1:80639183490:web:a70f285740abd93ca6029b" >> .env
+          echo "VITE_FIREBASE_MEASUREMENT_ID=G-W8BVR7ZB31" >> .env
           echo "VITE_STORAGE_KEY=profile_v1" >> .env
 
       - name: Build frontend
