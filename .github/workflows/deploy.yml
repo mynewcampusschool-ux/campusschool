@@ -18,10 +18,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create .env
+      - name: Create frontend .env
         run: |
           echo "VITE_API_URL=https://campusalumni.in/backend/api" >> .env
-          echo "VITE_FIREBASE_API_KEY=AIzaSyCM_MFB_oe_PSlK8xdmOxoVOZcFWNHwdYE" >> .env
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
           echo "VITE_FIREBASE_AUTH_DOMAIN=cspp-2a134-f66d4.firebaseapp.com" >> .env
           echo "VITE_FIREBASE_PROJECT_ID=cspp-2a134-f66d4" >> .env
           echo "VITE_FIREBASE_STORAGE_BUCKET=cspp-2a134-f66d4.firebasestorage.app" >> .env
@@ -38,7 +38,7 @@ jobs:
         with:
           server: ftp.campusalumni.in
           username: u763367215.campusalumni.in
-          password: Ftp@Campus2026
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: /public_html/
           dangerous-clean-slate: false
@@ -54,7 +54,7 @@ jobs:
 
       - name: Create backend .env
         run: |
-          cat > backend/.env <<'EOF'
+          cat > backend/.env <<'ENVEOF'
 APP_NAME="Campus School Pantnagar Alumni Portal"
 APP_URL=https://campusalumni.in
 APP_ENV=production
@@ -63,22 +63,22 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=u763367215_campusschool
 DB_USER=u763367215_campusschool
-DB_PASS=Campus@2026@
-JWT_SECRET=cspp_alumni_campusalumni_2024_xK9mP2qRvL8nT5wZ
+DB_PASS=${{ secrets.DB_PASS }}
+JWT_SECRET=${{ secrets.JWT_SECRET }}
 JWT_EXPIRY=3600
 JWT_REFRESH_EXPIRY=604800
 UPLOAD_MAX_SIZE=10485760
 UPLOAD_PATH=uploads/
 RATE_LIMIT_REQUESTS=60
 RATE_LIMIT_WINDOW=60
-EOF
+ENVEOF
 
       - name: Deploy backend to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.campusalumni.in
           username: u763367215.campusalumni.in
-          password: Ftp@Campus2026
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./backend/
           server-dir: /public_html/backend/
           exclude: |
