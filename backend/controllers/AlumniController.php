@@ -116,6 +116,14 @@ class AlumniController
         Response::success(null, 'Alumni deleted.');
     }
 
+    // GET /alumni/count — total registered users count
+    public function count(): void
+    {
+        $stmt = $this->db->query('SELECT COUNT(*) FROM users WHERE status != \'banned\' AND deleted_at IS NULL');
+        $total = (int)$stmt->fetchColumn();
+        Response::success(['count' => $total]);
+    }
+
     // GET /alumni/batches — distinct batch years for filter
     public function batches(): void
     {

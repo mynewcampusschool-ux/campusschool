@@ -255,10 +255,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Load from API on mount; merge into store
   useEffect(() => {
     const load = async () => {
-      const [hero, ticker, stats, quickAccess, cta, events, notices, testimonials, gallery, news, blogs, jobs, mentors, schools] = await Promise.all([
+      const [hero, ticker, stats, quickAccess, cta, events, notices, testimonials, gallery, news, blogs, jobs, mentors, schools, alumniCount] = await Promise.all([
         api.cms.hero(), api.cms.ticker(), api.cms.stats(), api.cms.quickAccess(), api.cms.cta(),
         api.cms.events(), api.cms.notices(), api.cms.testimonials(), api.cms.gallery(),
         api.cms.news(), api.cms.blogs(), api.cms.jobs(), api.cms.mentors(), api.cms.schools(),
+        api.alumni.count(),
       ]);
 
       const mapHero = (rows: unknown[]): HeroSlide[] => rows.map((r: any) => ({
@@ -355,6 +356,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (Array.isArray(hero) && hero.length)         partial.heroSlides    = mapHero(hero);
       if (Array.isArray(ticker) && ticker.length)     partial.ticker        = mapTicker(ticker);
       if (Array.isArray(stats) && stats.length)       partial.stats         = mapStats(stats);
+      // Override Registered Alumni count with live user count
+      if (alumniCount && typeof alumniCount.count === 'number') {
+        const baseStats = (Array.isArray(stats) && stats.length) ? mapStats(stats) : DEFAULT_STATS;
+        partial.stats = baseStats.map(s =>
+          s.label === 'Registered Alumni' ? { ...s, value: alumniCount.count } : s
+        );
+      }
       if (Array.isArray(quickAccess) && quickAccess.length) partial.quickAccess = mapQA(quickAccess);
       if (cta)                                        partial.cta           = mapCTA(cta);
       if (Array.isArray(events))                      partial.events        = mapEvents(events);

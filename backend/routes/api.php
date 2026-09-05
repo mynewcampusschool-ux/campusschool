@@ -108,6 +108,7 @@ if (preg_match('#^/admin/cms/schools/(\d+)$#', $uri, $m)  && $method === 'DELETE
 // ── Alumni — Public ───────────────────────────────────────────────────────────
 $alumni = new AlumniController();
 if ($uri === '/alumni'           && $method === 'GET') { $alumni->index();    return; }
+if ($uri === '/alumni/count'   && $method === 'GET') { $alumni->count();   return; }
 if ($uri === '/alumni/batches'   && $method === 'GET') { $alumni->batches();  return; }
 if ($uri === '/alumni/countries' && $method === 'GET') { $alumni->countries();return; }
 if (preg_match('#^/alumni/(\d+)$#', $uri, $m) && $method === 'GET') { $alumni->show((int)$m[1]); return; }

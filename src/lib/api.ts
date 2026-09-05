@@ -111,6 +111,7 @@ export const api = {
       const qs = new URLSearchParams(params as Record<string, string>).toString();
       return get<{ data: unknown[]; total: number; page: number; totalPages: number }>(`/alumni?${qs}`);
     },
+    count: () => get<{ count: number }>('/alumni/count'),
     batches: async () => {
       const res = await get<string[]>('/alumni/batches');
       if (res && res.length > 0) return res;
