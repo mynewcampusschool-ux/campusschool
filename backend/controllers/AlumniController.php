@@ -58,19 +58,46 @@ class AlumniController
 
         $whereStr = implode(' AND ', $where);
 
-        $total = (int)$this->db->prepare("SELECT COUNT(*) FROM alumni_records WHERE {$whereStr}")
-            ->execute($params) ? $this->db->prepare("SELECT COUNT(*) FROM alumni_records WHERE {$whereStr}")->execute($params) : 0;
-
+        // alumni_records
         $countStmt = $this->db->prepare("SELECT COUNT(*) FROM alumni_records WHERE {$whereStr}");
         $countStmt->execute($params);
-        $total = (int)$countStmt->fetchColumn();
+        $total1 = (int)$countStmt->fetchColumn();
 
-        $dataStmt = $this->db->prepare("SELECT * FROM alumni_records WHERE {$whereStr} ORDER BY id LIMIT {$limit} OFFSET {$offset}");
+        // registered users (active, email verified)
+        $userWhere = ['deleted_at IS NULL', 'email_verified = 1', 'status != \'banned\''];
+        $userParams = [];
+        if ($search !== '') {
+            $userWhere[] = '(full_name LIKE ? OR school LIKE ?)';
+            $like = "%{$search}%";
+            array_push($userParams, $like, $like);
+        }
+        if ($batch !== '') {
+            $userWhere[] = 'batch_year = ?';
+            $userParams[] = $batch;
+        }
+        $userWhereStr = implode(' AND ', $userWhere);
+
+        $countStmt2 = $this->db->prepare("SELECT COUNT(*) FROM users WHERE {$userWhereStr}");
+        $countStmt2->execute($userParams);
+        $total2 = (int)$countStmt2->fetchColumn();
+
+        $total = $total1 + $total2;
+
+        // Fetch both
+        $dataStmt = $this->db->prepare("SELECT id, full_name, NULL as nickname, batch as batch, designation, organization, profession, qualification, city, country, photo_url, linkedin_url, facebook_url, registered_at, 'record' as source FROM alumni_records WHERE {$whereStr} ORDER BY id");
         $dataStmt->execute($params);
-        $rows = $dataStmt->fetchAll();
+        $rows1 = $dataStmt->fetchAll();
+
+        $dataStmt2 = $this->db->prepare("SELECT id, full_name, NULL as nickname, batch_year as batch, NULL as designation, school as organization, NULL as profession, NULL as qualification, NULL as city, 'India' as country, avatar as photo_url, linkedin_url, facebook_url, created_at as registered_at, 'user' as source FROM users WHERE {$userWhereStr} ORDER BY id");
+        $dataStmt2->execute($userParams);
+        $rows2 = $dataStmt2->fetchAll();
+
+        // Merge, paginate
+        $all = array_merge($rows1, $rows2);
+        $paginated = array_slice($all, $offset, $limit);
 
         Response::success([
-            'data'       => $rows,
+            'data'       => $paginated,
             'total'      => $total,
             'page'       => $page,
             'limit'      => $limit,
@@ -119,8 +146,9 @@ class AlumniController
     // GET /alumni/count — total registered users count
     public function count(): void
     {
-        $stmt = $this->db->query('SELECT COUNT(*) FROM users WHERE status != \'banned\' AND deleted_at IS NULL');
-        $total = (int)$stmt->fetchColumn();
+        $stmt1 = $this->db->query('SELECT COUNT(*) FROM users WHERE status != \'banned\' AND deleted_at IS NULL AND email_verified = 1');
+        $stmt2 = $this->db->query('SELECT COUNT(*) FROM alumni_records');
+        $total = (int)$stmt1->fetchColumn() + (int)$stmt2->fetchColumn();
         Response::success(['count' => $total]);
     }
 
