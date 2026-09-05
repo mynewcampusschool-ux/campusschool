@@ -1,0 +1,22 @@
+{
+  "name": "campus-alumni/backend",
+  "description": "Campus School Pantnagar Alumni Portal Backend",
+  "type": "project",
+  "require": {
+    "php": ">=8.1",
+    "firebase/php-jwt": "^6.10",
+    "phpmailer/phpmailer": "^6.9",
+    "vlucas/phpdotenv": "^5.6",
+    "league/oauth2-google": "^4.0",
+    "league/oauth2-facebook": "^2.0",
+    "league/oauth2-linkedin": "^5.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}

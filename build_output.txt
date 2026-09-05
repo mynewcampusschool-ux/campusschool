@@ -1,0 +1,51 @@
+
+> csp@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v8.1.4 [32mbuilding client environment for production...[36m[39m
+[2Ktransforming...✓ 528 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               1.37 kB │ gzip:   0.57 kB
+dist/assets/ui-B1b7U2Vw.css                  35.62 kB │ gzip:   4.02 kB
+dist/assets/index-CrSP9eLj.css               52.19 kB │ gzip:   8.75 kB
+dist/assets/rolldown-runtime-CNC7AqOf.js      0.87 kB │ gzip:   0.50 kB
+dist/assets/SchoolsPage-OSBezJC2.js           0.95 kB │ gzip:   0.52 kB
+dist/assets/JobsPage-2pwRdNFp.js              0.95 kB │ gzip:   0.52 kB
+dist/assets/NotFoundPage-7ik94SHB.js          1.06 kB │ gzip:   0.55 kB
+dist/assets/CTABanner-D7VpyHmo.js             2.10 kB │ gzip:   0.93 kB
+dist/assets/SchoolsSection-DVxrl7We.js        2.30 kB │ gzip:   0.99 kB
+dist/assets/MentorsSection-CyxiXt65.js        2.76 kB │ gzip:   1.07 kB
+dist/assets/JobsSection-Ctbof7kp.js           2.82 kB │ gzip:   1.11 kB
+dist/assets/NetworkingPage-Dyoupw4t.js        2.84 kB │ gzip:   1.14 kB
+dist/assets/NewsPage-CLyfHy5i.js              3.07 kB │ gzip:   1.33 kB
+dist/assets/ForgotPasswordPage-l-tSZkjx.js    3.13 kB │ gzip:   1.25 kB
+dist/assets/MentorshipPage-DrMETjIH.js        3.25 kB │ gzip:   1.33 kB
+dist/assets/NoticeBoardPage-BihHYsGq.js       3.26 kB │ gzip:   1.26 kB
+dist/assets/AboutPage-rGpCTO6W.js             3.42 kB │ gzip:   1.45 kB
+dist/assets/EventsPage-VDtYkX8O.js            3.66 kB │ gzip:   1.45 kB
+dist/assets/LoginPage-JEhd2Bv-.js             4.96 kB │ gzip:   1.65 kB
+dist/assets/DirectoryPage-BEG-w1E8.js         5.45 kB │ gzip:   1.85 kB
+dist/assets/AdminDashboard-BltAqVET.js        6.12 kB │ gzip:   1.92 kB
+dist/assets/ProfilePage-CYE9Hwbo.js           7.15 kB │ gzip:   2.08 kB
+dist/assets/RegisterPage-tXGkEPPC.js          7.42 kB │ gzip:   2.00 kB
+dist/assets/HomePage-BPBi_RSJ.js             17.53 kB │ gzip:   4.42 kB
+dist/assets/index-Cmx59FeY.js                24.70 kB │ gzip:   7.06 kB
+dist/assets/ui-QsAUxS5A.js                  105.15 kB │ gzip:  32.15 kB
+dist/assets/motion-CjUrjTpm.js              132.74 kB │ gzip:  43.43 kB
+dist/assets/vendor-BfTVr2s0.js              264.48 kB │ gzip:  82.74 kB
+dist/assets/firebase-CbrnFkjp.js            505.15 kB │ gzip: 150.19 kB
+
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vite:css (54%)
+  - rolldown:vite-resolve (28%)
+  - vite:css-post (5%)
+  - vite:build-html (5%)
+See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+[39m
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 8.61s[39m

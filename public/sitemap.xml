@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://campusalumni.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://campusalumni.in/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/about/history</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://campusalumni.in/about/principal</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://campusalumni.in/directory</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://campusalumni.in/directory/alumni</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/directory/business</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/events</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/events/upcoming</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/events/gallery</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://campusalumni.in/jobs</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/jobs/listings</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/jobs/internships</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/jobs/campus-hiring</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/news</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/news/latest</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/news/blogs</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/notice-board</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/schools</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/networking</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://campusalumni.in/mentorship</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://campusalumni.in/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://campusalumni.in/privacy-policy</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://campusalumni.in/terms</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+</urlset>

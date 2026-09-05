@@ -1,0 +1,10 @@
+ »   Warning: JSONHTTPError: Unauthorized
+ »       at parseResponse (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/node_modules/@netlify/api/lib/methods/response.js:34:39)
+ »       at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+ »       at async callMethod (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/node_modules/@netlify/api/lib/methods/index.js:26:28)
+ »       at async deploy (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/dist/commands/deploy/deploy.js:1016:33)
+ »       at async BaseCommand.<anonymous> (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/dist/commands/deploy/index.js:107:5)
+ »       at async BaseCommand.parseAsync (C:\Users\amitm\AppData\Roaming\npm\node_modules\netlify-cli\node_modules\commander\lib\command.js:1092:5)
+ »       at async runProgram (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/dist/utils/run-program.js:13:9)
+ »       at async main (file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/bin/run.js:75:5)
+ »       at async file:///C:/Users/amitm/AppData/Roaming/npm/node_modules/netlify-cli/bin/run.js:86:1
