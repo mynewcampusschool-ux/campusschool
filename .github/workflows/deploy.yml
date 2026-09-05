@@ -41,7 +41,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: /public_html/
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
