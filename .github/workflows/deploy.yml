@@ -20,7 +20,7 @@ jobs:
 
       - name: Create .env
         run: |
-          echo "VITE_API_URL=https://csp-backend-production.railway.app/api" >> .env
+          echo "VITE_API_URL=https://campusalumni.in/backend/api" >> .env
           echo "VITE_FIREBASE_API_KEY=AIzaSyAJnEk9kRnQnt-mmgKh9t0XOgKSRZWVTOA" >> .env
           echo "VITE_FIREBASE_AUTH_DOMAIN=cspp-2a134.firebaseapp.com" >> .env
           echo "VITE_FIREBASE_PROJECT_ID=cspp-2a134" >> .env
@@ -29,10 +29,10 @@ jobs:
           echo "VITE_FIREBASE_APP_ID=1:871663305723:web:a5747e0027015938d8015e" >> .env
           echo "VITE_STORAGE_KEY=profile_v1" >> .env
 
-      - name: Build
+      - name: Build frontend
         run: npm run build
 
-      - name: Deploy to Hostinger via FTP
+      - name: Deploy frontend to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.campusalumni.in
@@ -40,4 +40,39 @@ jobs:
           password: Campus@2026@
           local-dir: ./dist/
           server-dir: /public_html/
+          dangerous-clean-slate: false
+
+      - name: Create backend .env
+        run: |
+          cat > backend/.env << 'EOF'
+          APP_NAME="Campus School Pantnagar Alumni Portal"
+          APP_URL=https://campusalumni.in
+          APP_ENV=production
+          FRONTEND_URL=https://campusalumni.in
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_NAME=u763367215_campusschool
+          DB_USER=u763367215_campusschool
+          DB_PASS=Campus@2026@
+          JWT_SECRET=cspp_alumni_campusalumni_2024_xK9mP2qRvL8nT5wZ
+          JWT_EXPIRY=3600
+          JWT_REFRESH_EXPIRY=604800
+          UPLOAD_MAX_SIZE=10485760
+          UPLOAD_PATH=uploads/
+          RATE_LIMIT_REQUESTS=60
+          RATE_LIMIT_WINDOW=60
+          EOF
+
+      - name: Deploy backend to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.campusalumni.in
+          username: u763367215
+          password: Campus@2026@
+          local-dir: ./backend/
+          server-dir: /public_html/backend/
+          exclude: |
+            **/.git_disabled/**
+            **/database/**
+            **/.env
           dangerous-clean-slate: false
