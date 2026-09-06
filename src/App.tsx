@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LaunchScreen from './components/LaunchScreen';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
@@ -54,6 +55,7 @@ const Loader = () => (
 
 const App: React.FC = () => (
   <ErrorBoundary>
+  <LaunchScreen />
   <HelmetProvider>
     <AlumniPhotoProvider>
     <CMSProvider>
