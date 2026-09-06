@@ -23,8 +23,8 @@ RUN mkdir -p logs uploads/alumni uploads/files uploads/images \
 
 # Start script
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chmod +x /start.sh && sed -i 's/\r//' /start.sh
 
 EXPOSE 10000
 
-CMD ["/start.sh"]
+CMD ["/bin/sh", "/start.sh"]
