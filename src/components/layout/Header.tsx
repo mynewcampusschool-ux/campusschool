@@ -59,10 +59,10 @@ const Header: React.FC = () => {
               {/* Row 1 (mobile) — contact info */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <a
-                  href="tel:+915944233530"
+                  href="tel:+919654304903"
                   style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#ffffff', textDecoration: 'none', fontSize: '0.72rem' }}
                 >
-                  <FiPhone size={11} /> +91-5944-233530
+                  <FiPhone size={11} /> +91 96543 04903
                 </a>
                 <a
                   href="mailto:campusschoolpantnagar@gmail.com"
