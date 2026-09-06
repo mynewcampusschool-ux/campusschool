@@ -1,8 +1,8 @@
 FROM php:8.2-fpm-alpine
 
-# Install nginx + required PHP extensions
-RUN apk add --no-cache nginx curl unzip \
-    && docker-php-ext-install pdo pdo_mysql
+# Install nginx + PostgreSQL PHP extension
+RUN apk add --no-cache nginx curl unzip postgresql-dev \
+    && docker-php-ext-install pdo pdo_pgsql
 
 # Install composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -21,9 +21,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 RUN mkdir -p logs uploads/alumni uploads/files uploads/images \
     && chmod -R 775 logs uploads
 
-# Start script
+# Fix line endings and copy start script
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh && sed -i 's/\r//' /start.sh
+RUN sed -i 's/\r//' /start.sh && chmod +x /start.sh
 
 EXPOSE 10000
 

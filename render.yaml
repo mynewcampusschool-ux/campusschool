@@ -13,13 +13,13 @@ services:
       - key: FRONTEND_URL
         value: https://campusalumni.in
       - key: DB_HOST
-        value: localhost
+        value: db.divvkonzeukafawgwzzu.supabase.co
       - key: DB_PORT
-        value: "3306"
+        value: "5432"
       - key: DB_NAME
-        value: u763367215_campusschool
+        value: postgres
       - key: DB_USER
-        value: u763367215_campusschool
+        value: postgres
       - key: DB_PASS
         sync: false
       - key: JWT_SECRET
@@ -28,8 +28,6 @@ services:
         value: "3600"
       - key: JWT_REFRESH_EXPIRY
         value: "604800"
-      - key: UPLOAD_MAX_SIZE
-        value: "10485760"
       - key: UPLOAD_PATH
         value: uploads/
       - key: RATE_LIMIT_REQUESTS
