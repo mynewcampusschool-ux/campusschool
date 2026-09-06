@@ -44,20 +44,24 @@ const LaunchScreen: React.FC = () => {
     };
 
     const gold = ['#D4AF37','#FFD700','#FFF8DC','#FFE066','#FFFACD'];
-    const pink = ['#FFB7C5','#FF9EAD','#FFCDD2','#F8BBD0','#FFF0F5'];
+    const flowerColors = [
+      '#FF6B9D','#FF4757','#FF6348','#FFA502','#ECCC68',
+      '#FF9FF3','#54A0FF','#5F27CD','#00D2D3','#FF9F43',
+      '#EE5A24','#C44569','#E84393','#9B59B6','#3DC1D3',
+    ];
 
-    const pts: P[] = Array.from({ length: 90 }, (_, i) => ({
+    const pts: P[] = Array.from({ length: 120 }, (_, i) => ({
       x: Math.random() * canvas.width,
-      y: i < 50 ? -30 - Math.random() * 120 : Math.random() * canvas.height * 0.4,
-      vx: (Math.random() - 0.5) * 1.8,
-      vy: 0.8 + Math.random() * 2.2,
-      size: i < 50 ? 7 + Math.random() * 11 : 3 + Math.random() * 5,
-      color: i < 50
-        ? pink[Math.floor(Math.random() * pink.length)]
+      y: i < 80 ? -30 - Math.random() * 150 : Math.random() * canvas.height * 0.4,
+      vx: (Math.random() - 0.5) * 2,
+      vy: 0.6 + Math.random() * 2.5,
+      size: i < 80 ? 10 + Math.random() * 16 : 3 + Math.random() * 5,
+      color: i < 80
+        ? flowerColors[Math.floor(Math.random() * flowerColors.length)]
         : gold[Math.floor(Math.random() * gold.length)],
-      type: i < 50 ? 'petal' : 'sparkle',
+      type: i < 80 ? 'petal' : 'sparkle',
       rot: Math.random() * Math.PI * 2,
-      rotV: (Math.random() - 0.5) * 0.07,
+      rotV: (Math.random() - 0.5) * 0.06,
       alpha: 1,
     }));
 
@@ -82,10 +86,22 @@ const LaunchScreen: React.FC = () => {
         ctx.rotate(p.rot);
 
         if (p.type === 'petal') {
+          // Realistic flower petal shape
           ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 4;
           ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * 0.45, 0, 0, Math.PI * 2);
+          ctx.moveTo(0, -p.size);
+          ctx.bezierCurveTo(p.size * 0.6, -p.size * 0.6, p.size * 0.6, p.size * 0.6, 0, p.size);
+          ctx.bezierCurveTo(-p.size * 0.6, p.size * 0.6, -p.size * 0.6, -p.size * 0.6, 0, -p.size);
           ctx.fill();
+          // Petal center line
+          ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(0, -p.size * 0.8);
+          ctx.lineTo(0, p.size * 0.8);
+          ctx.stroke();
         } else {
           ctx.fillStyle = p.color;
           ctx.shadowColor = p.color;
