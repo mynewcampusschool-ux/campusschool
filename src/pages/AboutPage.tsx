@@ -78,10 +78,10 @@ const AboutPage: React.FC = () => (
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { src: '/image%201.jpg', alt: 'Campus' },
-              { src: '/image%202.jpg', alt: 'Students' },
-              { src: '/image%203.jpg', alt: 'Graduation' },
-              { src: '/image%204.jpg', alt: 'Alumni' },
+              { src: '/image_1.jpg', alt: 'Campus' },
+              { src: '/image_2.jpg', alt: 'Students' },
+              { src: '/image_3.jpg', alt: 'Graduation' },
+              { src: '/image_4.jpg', alt: 'Alumni' },
             ].map((img) => (
               <img
                 key={img.alt}

@@ -99,10 +99,10 @@ export interface CMSStore {
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 const DEFAULT_HERO_SLIDES: HeroSlide[] = [
-  { id: 1, image: '/image 1.jpg', title: 'Campus School Pantnagar', subtitle: 'Alumni Portal', description: 'Reconnecting 42,000+ alumni across 25+ countries. Be a part of our global community and build a legacy that endures.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
-  { id: 2, image: '/image 3.jpg', title: 'Connect. Grow.', subtitle: 'Inspire.', description: 'Join thousands of alumni who are making a difference across the globe. Your network is your greatest asset.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
-  { id: 3, image: '/image 4.jpg', title: 'Your Network.', subtitle: 'Your Future.', description: 'Leverage the power of the Campus School Pantnagar alumni network. Mentorship, jobs, and lifelong friendships await.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
-  { id: 4, image: '/image 5.jpg', title: 'Glory To God.', subtitle: 'Service To All.', description: 'Rooted in our timeless motto, we celebrate 50+ years of excellence, integrity, and community service.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
+  { id: 1, image: '/image_1.jpg', title: 'Campus School Pantnagar', subtitle: 'Alumni Portal', description: 'Reconnecting 42,000+ alumni across 25+ countries. Be a part of our global community and build a legacy that endures.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
+  { id: 2, image: '/image_3.jpg', title: 'Connect. Grow.', subtitle: 'Inspire.', description: 'Join thousands of alumni who are making a difference across the globe. Your network is your greatest asset.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
+  { id: 3, image: '/image_4.jpg', title: 'Your Network.', subtitle: 'Your Future.', description: 'Leverage the power of the Campus School Pantnagar alumni network. Mentorship, jobs, and lifelong friendships await.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
+  { id: 4, image: '/image_5.jpg', title: 'Glory To God.', subtitle: 'Service To All.', description: 'Rooted in our timeless motto, we celebrate 50+ years of excellence, integrity, and community service.', primaryBtnLabel: 'Join Alumni Network', primaryBtnLink: '/auth/register', secondaryBtnLabel: 'Explore Community', secondaryBtnLink: '/directory', enabled: true },
 ];
 
 const DEFAULT_TICKER: TickerItem[] = [
@@ -132,12 +132,12 @@ const DEFAULT_EVENTS: CMSEvent[] = [];
 const DEFAULT_NOTICES: CMSNotice[] = [];
 const DEFAULT_TESTIMONIALS: CMSTestimonial[] = [];
 const DEFAULT_GALLERY: GalleryImage[] = [
-  { id: '1', src: '/image 1.jpg', thumb: '/image 1.jpg', caption: 'Campus Life', category: 'Campus', span: '', order: 0, enabled: true },
-  { id: '2', src: '/image 2.jpg', thumb: '/image 2.jpg', caption: 'Events', category: 'Events', span: '', order: 1, enabled: true },
-  { id: '3', src: '/image 3.jpg', thumb: '/image 3.jpg', caption: 'Academics', category: 'Academics', span: '', order: 2, enabled: true },
-  { id: '4', src: '/image 4.jpg', thumb: '/image 4.jpg', caption: 'Sports', category: 'Sports', span: '', order: 3, enabled: true },
-  { id: '5', src: '/image 5.jpg', thumb: '/image 5.jpg', caption: 'Cultural', category: 'Cultural', span: '', order: 4, enabled: true },
-  { id: '6', src: '/image 6.jpg', thumb: '/image 6.jpg', caption: 'Campus', category: 'Campus', span: '', order: 5, enabled: true },
+  { id: '1', src: '/image_1.jpg', thumb: '/image_1.jpg', caption: 'Campus Life', category: 'Campus', span: '', order: 0, enabled: true },
+  { id: '2', src: '/image_2.jpg', thumb: '/image_2.jpg', caption: 'Events', category: 'Events', span: '', order: 1, enabled: true },
+  { id: '3', src: '/image_3.jpg', thumb: '/image_3.jpg', caption: 'Academics', category: 'Academics', span: '', order: 2, enabled: true },
+  { id: '4', src: '/image_4.jpg', thumb: '/image_4.jpg', caption: 'Sports', category: 'Sports', span: '', order: 3, enabled: true },
+  { id: '5', src: '/image_5.jpg', thumb: '/image_5.jpg', caption: 'Cultural', category: 'Cultural', span: '', order: 4, enabled: true },
+  { id: '6', src: '/image_6.jpg', thumb: '/image_6.jpg', caption: 'Campus', category: 'Campus', span: '', order: 5, enabled: true },
 ];
 
 const DEFAULT_CTA: CTAData = {

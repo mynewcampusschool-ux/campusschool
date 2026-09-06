@@ -33,6 +33,13 @@ VITE_FIREBASE_MEASUREMENT_ID=G-W8BVR7ZB31
 VITE_STORAGE_KEY=profile_v1
 EOF
 
+      - name: Rename image files (remove spaces)
+        run: |
+          for f in public/image\ *.jpg; do
+            mv "$f" "${f// /_}"
+          done
+          ls public/
+
       - name: Build frontend
         run: npm run build
 
