@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: campusalumni-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_URL
+        value: https://campusalumni-backend.onrender.com
+      - key: FRONTEND_URL
+        value: https://campusalumni.in
+      - key: DB_HOST
+        value: localhost
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        value: u763367215_campusschool
+      - key: DB_USER
+        value: u763367215_campusschool
+      - key: DB_PASS
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRY
+        value: "3600"
+      - key: JWT_REFRESH_EXPIRY
+        value: "604800"
+      - key: UPLOAD_MAX_SIZE
+        value: "10485760"
+      - key: UPLOAD_PATH
+        value: uploads/
+      - key: RATE_LIMIT_REQUESTS
+        value: "60"
+      - key: RATE_LIMIT_WINDOW
+        value: "60"
