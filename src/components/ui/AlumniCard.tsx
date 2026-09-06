@@ -141,7 +141,9 @@ const AlumniCard: React.FC<Props> = ({ alumni, index }) => {
   const buildCandidates = (): string[] => {
     if (photoMap[alumni.id]) return [photoMap[alumni.id]];
     const locals = localCandidates(alumni.id, alumni.fullName);
-    const excel = alumni.photoUrl && !alumni.photoUrl.includes('drive.google.com') && !alumni.photoUrl.includes('linkedin.com') ? alumni.photoUrl : null;
+    const url = alumni.photoUrl;
+    if (url && url.startsWith('/')) return [url, ...locals];
+    const excel = url && !url.includes('drive.google.com') && !url.includes('linkedin.com') ? url : null;
     return excel ? [...locals, excel] : locals;
   };
 

@@ -109,11 +109,14 @@ export function resolvePhoto(
   // 1. Admin-uploaded override (highest priority)
   if (overrides[id]) return overrides[id];
 
-  // 2. First local candidate — AlumniCard will cascade through the rest on error
+  // 2. Local public path in photoUrl (starts with /)
+  if (photoUrl && photoUrl.startsWith('/')) return photoUrl;
+
+  // 3. First local candidate — AlumniCard will cascade through the rest on error
   const first = localCandidates(id, fullName)[0];
   if (first) return first;
 
-  // 3. Excel photoUrl — skip Google Drive (CORS blocked) and LinkedIn (auth required)
+  // 4. External photoUrl — skip Google Drive (CORS blocked) and LinkedIn
   if (
     photoUrl &&
     !photoUrl.includes('drive.google.com') &&

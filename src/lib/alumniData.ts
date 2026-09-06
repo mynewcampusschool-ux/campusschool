@@ -21,7 +21,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "B.Tech ( Electrical & Electronics )",
     "city": "Gurugram",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1OVNqcJsLF4AnXMZKoszWroimuhcl-GqV&sz=w300",
+    "photoUrl": "/Dabanjan Kusari.jpeg",
     "linkedinUrl": "https://www.linkedin.com/in/debanjan-kusari-60044698?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -37,7 +37,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Ahmedabad",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1gD_O1i-haiZ3Y6JhMoCNRUUUIwatr0ya&sz=w300",
+    "photoUrl": "/Adarsh.jpeg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -53,7 +53,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "",
     "city": "Greater Noida",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1V3ieI8AKm6xsXVSdpX0F40RAWPlkyFAw&sz=w300",
+    "photoUrl": "/Shobhit Dhaka.jpeg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -69,7 +69,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Gurugram",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1IjoFY1oRjB6Vq7zATfbOUU283OEIyw2S&sz=w300",
+    "photoUrl": "/Deepti Gupta.jpg",
     "linkedinUrl": "https://www.linkedin.com/in/deepti-gupta-mehra-13924255/",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -85,7 +85,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Delhi",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1oYfFHk7W6HekB5VRv7uij8kyoovQltUi&sz=w300",
+    "photoUrl": "/Praveen Bhal.jpeg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -101,7 +101,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "Masters",
     "city": "Noida Extension",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1Ms9h9tjSiA67tu4tdq7CghG1wQuH5IZ1&sz=w300",
+    "photoUrl": "/Gaurav Chandel.jpg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -117,7 +117,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "PhD Agriculture",
     "city": "Hyderabad",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1o8qBXeU-lwBiSwL9kqwdeTDddZ8qknJr&sz=w300",
+    "photoUrl": "/Amaresh chandel.jpeg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -133,7 +133,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Bhimtal",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1kST78Uc_HQYygf4_RZo2xw-H-Wcv_HfO&sz=w300",
+    "photoUrl": "/Rana Atheya.png",
     "linkedinUrl": "https://www.linkedin.com/in/ratheya/",
     "facebookUrl": "https://www.facebook.com/ratheya",
     "registeredAt": "2026-03-26"
@@ -149,7 +149,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Mumbai",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1aZYQcncbCk6IBZwoyNsVs6vz4Bg3X3SZ&sz=w300",
+    "photoUrl": "/Anuupam R Jain.jpg",
     "linkedinUrl": "https://www.linkedin.com/in/anupam9936355155?utm_source=share_via&utm_content=profile&utm_medium=member_android",
     "facebookUrl": "https://www.facebook.com/share/17PMjzFgA7/",
     "registeredAt": "2026-03-26"
@@ -165,7 +165,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MBA",
     "city": "Noida",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1K8KH20j0IxDJ_SqsZMCT8kGEY7iRc_oi&sz=w300",
+    "photoUrl": "/Saurabh Srivastava.jpg",
     "linkedinUrl": "https://www.linkedin.com/in/saurabh-srivastava-3030766?utm_source=share_via&utm_content=profile&utm_medium=member_android",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"
@@ -181,7 +181,7 @@ export const ALUMNI_DATA: AlumniRecord[] = [
     "qualification": "MVSc Veterinary Pathology",
     "city": "Meerut",
     "country": "India",
-    "photoUrl": "https://drive.google.com/thumbnail?id=1vYc8OgUjIOCSDDMm5w2Y1CmpYikIodHZ&sz=w300",
+    "photoUrl": "/Manav Deshwal.jpeg",
     "linkedinUrl": "",
     "facebookUrl": "",
     "registeredAt": "2026-03-26"

@@ -6,8 +6,14 @@ import { FiArrowRight } from 'react-icons/fi';
 import { useAlumniData } from '../../hooks/useAlumniData';
 import AlumniCard from '../ui/AlumniCard';
 
+const PHOTO_IDS = new Set(['1','2','3','4','5','6','7','8','9','10','11']);
+
 const NotableAlumni: React.FC = () => {
-  const { data: alumni, loading } = useAlumniData({ limit: 8 });
+  const { data: allAlumni, loading } = useAlumniData({ limit: 55 });
+  const alumni = React.useMemo(() => {
+    const withPhoto = allAlumni.filter(a => PHOTO_IDS.has(a.id));
+    return withPhoto.slice(0, 8);
+  }, [allAlumni]);
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   if (loading || alumni.length === 0) return null;
