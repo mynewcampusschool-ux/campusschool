@@ -49,7 +49,7 @@ export function useAdminUsers(params: Params = {}, pollMs = 15000) {
       if (params.status)   q.set('status',   params.status);
       if (params.role)     q.set('role',     params.role);
 
-      const res = await fetch(`${API}/users?${q.toString()}`);
+      const res = await fetch(`${API}/admin/users?${q.toString()}`);
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const json = await res.json();
       setResult(json);
@@ -71,32 +71,32 @@ export function useAdminUsers(params: Params = {}, pollMs = 15000) {
   const mutate = useCallback(() => fetchUsers(), [fetchUsers]);
 
   const updateUserStatus = useCallback(async (id: string, newStatus: string) => {
-    await fetch(`${API}/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
     mutate();
   }, [mutate]);
 
   const updateUserRole = useCallback(async (id: string, newRole: string) => {
-    await fetch(`${API}/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole }) });
+    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole }) });
     mutate();
   }, [mutate]);
 
   const deleteUser = useCallback(async (id: string) => {
-    await fetch(`${API}/users/${id}`, { method: 'DELETE' });
+    await fetch(`${API}/admin/users/${id}`, { method: 'DELETE' });
     mutate();
   }, [mutate]);
 
   const createUser = useCallback(async (payload: Record<string, string>) => {
-    await fetch(`${API}/users`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    await fetch(`${API}/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     mutate();
   }, [mutate]);
 
   const updateUser = useCallback(async (id: string, payload: Record<string, string>) => {
-    await fetch(`${API}/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     mutate();
   }, [mutate]);
 
   const resetPassword = useCallback(async (id: string, password: string) => {
-    await fetch(`${API}/users/${id}/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+    await fetch(`${API}/admin/users/${id}/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
     mutate();
   }, [mutate]);
 
