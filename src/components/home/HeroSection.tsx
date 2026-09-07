@@ -9,8 +9,12 @@ import { ALUMNI_DATA } from '../../lib/alumniData';
 function useAlumniCount() {
   const [count, setCount] = useState(ALUMNI_DATA.length);
   useEffect(() => {
+    if (!import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost')) {
+      setCount(ALUMNI_DATA.length);
+      return;
+    }
     api.alumni.count().then((res: any) => {
-      if (res?.count) setCount(res.count);
+      if (res?.count && res.count > ALUMNI_DATA.length) setCount(res.count);
     }).catch(() => {});
   }, []);
   return count;
