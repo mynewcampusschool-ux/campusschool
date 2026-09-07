@@ -118,8 +118,7 @@ const AboutPage: React.FC = () => (
       {/* Notable Alumni */}
       <div className="mb-20">
         <div className="text-center mb-12">
-          <span className="text-primary font-semibold text-sm uppercase tracking-widest">COSA - REVIVAL TEAM</span>
-          <h2 className="section-title mt-2">Notable Alumni</h2>
+          <h2 className="section-title mt-2">COSA - REVIVAL TEAM</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
