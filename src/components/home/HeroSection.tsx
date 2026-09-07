@@ -3,9 +3,22 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiUsers, FiArrowRight, FiPlay } from 'react-icons/fi';
 import { useCMS } from '../../context/CMSContext';
+import { api } from '../../lib/api';
+import { ALUMNI_DATA } from '../../lib/alumniData';
+
+function useAlumniCount() {
+  const [count, setCount] = useState(ALUMNI_DATA.length);
+  useEffect(() => {
+    api.alumni.count().then((res: any) => {
+      if (res?.count) setCount(res.count);
+    }).catch(() => {});
+  }, []);
+  return count;
+}
 
 const HeroSection: React.FC = () => {
   const { cms } = useCMS();
+  const alumniCount = useAlumniCount();
   const HERO_SLIDES = cms.heroSlides.filter((s) => s.enabled);
   const slideCount = HERO_SLIDES.length;
   const [current, setCurrent] = useState(0);
@@ -117,7 +130,7 @@ const HeroSection: React.FC = () => {
                   {/* Trust badges */}
                   <div className="flex flex-wrap gap-4">
                     {[
-                      { val: '55', lbl: 'Alumni' },
+                      { val: String(alumniCount), lbl: 'Alumni' },
                       { val: '25+', lbl: 'Countries' },
                       { val: '50+', lbl: 'Years' },
                       { val: '10+', lbl: 'Companies' },
