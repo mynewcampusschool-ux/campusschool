@@ -15,7 +15,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Permissions
 RUN mkdir -p logs uploads/alumni uploads/files uploads/images \
