@@ -1,0 +1,11 @@
+{
+  "user": "u763367215.campusschool",
+  "password": "Campus@2026@",
+  "host": "ftp.campusalumni.in",
+  "port": 21,
+  "localRoot": "./dist",
+  "remoteRoot": "/public_html/",
+  "include": ["*", "**/*"],
+  "deleteRemote": false,
+  "forcePasv": true
+}
