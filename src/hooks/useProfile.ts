@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import type { User as FirebaseUser } from 'firebase/auth';
+type MinimalUser = { id?: string; uid?: string; email?: string | null; displayName?: string | null; photoURL?: string | null; user_metadata?: Record<string, unknown> };
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { ProfileData, Skill, Experience, Education, Project, Achievement, GalleryItem } from '../types/profile';
@@ -17,13 +17,14 @@ function persist(uid: string, data: Partial<ProfileData>) {
   try { localStorage.setItem(`${STORAGE_KEY}_${uid}`, JSON.stringify(data)); } catch { /* noop */ }
 }
 
-export function useProfile(user: FirebaseUser | null) {
-  const stored = useMemo(() => user ? loadStored(user.uid) : {}, [user]);
+export function useProfile(user: MinimalUser | null) {
+  const userId = user?.uid ?? user?.id ?? '';
+  const stored = useMemo(() => userId ? loadStored(userId) : {}, [userId]);
 
   const [profile, setProfileState] = useState<ProfileData>(() => ({
-    uid: user?.uid ?? '',
+    uid: userId,
     email: user?.email ?? '',
-    name: user?.displayName || stored.name || 'Alumni Member',
+    name: (user?.displayName ?? (user?.user_metadata?.['full_name'] as string)) || stored.name || 'Alumni Member',
     role: stored.role ?? 'alumni',
     photoURL: user?.photoURL ?? stored.photoURL,
     coverURL: stored.coverURL,
@@ -71,8 +72,8 @@ export function useProfile(user: FirebaseUser | null) {
 
   // Load extra data from Firestore (full_name, batch_year, school)
   useEffect(() => {
-    if (!user) return;
-    getDoc(doc(db, 'users', user.uid)).then(snap => {
+    if (!userId) return;
+    getDoc(doc(db, 'users', userId)).then(snap => {
       if (!snap.exists()) return;
       const data = snap.data();
       setProfileState(prev => {
@@ -82,18 +83,18 @@ export function useProfile(user: FirebaseUser | null) {
           batch: data.batch_year || prev.batch,
           school: data.school   || prev.school,
         };
-        persist(user.uid, updated);
+        persist(userId, updated);
         return updated;
       });
     }).catch(() => {/* offline — use cached */});
-  }, [user]);
+  }, [userId]);
   const updateProfile = useCallback((updates: Partial<ProfileData>) => {
     setProfileState(prev => {
       const next = { ...prev, ...updates };
-      if (user) persist(user.uid, next);
+      if (userId) persist(userId, next);
       return next;
     });
-  }, [user]);
+  }, [userId]);
 
   const completion = useMemo(() => {
     const fields: (keyof ProfileData)[] = [
