@@ -1,9 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  updateProfile as fbUpdateProfile,
+  type User as FirebaseUser,
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 
 interface AuthContextType {
-  user: User | null;
+  user: FirebaseUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, extraData?: { full_name?: string; batch_year?: string; school?: string }) => Promise<void>;
@@ -15,23 +27,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser]       = useState<User | null>(null);
+  const [user, setUser]       = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
+    return unsub;
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
   const register = async (
@@ -39,50 +47,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     extraData?: { full_name?: string; batch_year?: string; school?: string }
   ) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name:  extraData?.full_name  ?? '',
-          batch_year: extraData?.batch_year ?? null,
-          school:     extraData?.school     ?? null,
-          role:       'alumni',
-        },
-      },
-    });
-    if (error) throw error;
-    // Insert into users table
-    if (data.user) {
-      await supabase.from('users').upsert({
-        id:         data.user.id,
-        full_name:  extraData?.full_name  ?? '',
-        email:      email.toLowerCase(),
-        batch_year: extraData?.batch_year ?? null,
-        school:     extraData?.school     ?? null,
-        role:       'alumni',
-        status:     'pending',
-      });
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (extraData?.full_name) {
+      await fbUpdateProfile(cred.user, { displayName: extraData.full_name });
     }
+    await sendEmailVerification(cred.user);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid:            cred.user.uid,
+      full_name:      extraData?.full_name  ?? '',
+      email:          email.toLowerCase(),
+      batch_year:     extraData?.batch_year ?? null,
+      school:         extraData?.school     ?? null,
+      role:           'alumni',
+      status:         'pending',
+      email_verified: false,
+      created_at:     serverTimestamp(),
+    });
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
   };
 
   const googleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) throw error;
+    const provider = new GoogleAuthProvider();
+    const cred     = await signInWithPopup(auth, provider);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid:            cred.user.uid,
+      full_name:      cred.user.displayName ?? '',
+      email:          cred.user.email?.toLowerCase() ?? '',
+      avatar:         cred.user.photoURL ?? null,
+      batch_year:     null,
+      school:         null,
+      role:           'alumni',
+      status:         'active',
+      email_verified: true,
+      created_at:     serverTimestamp(),
+    }, { merge: true });
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
-    });
-    if (error) throw error;
+    await sendPasswordResetEmail(auth, email);
   };
 
   return (
