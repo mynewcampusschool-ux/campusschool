@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       batch_year:     extraData?.batch_year ?? null,
       school:         extraData?.school     ?? null,
       role:           'alumni',
-      status:         'pending',
+      status:         'active',
       email_verified: false,
       created_at:     serverTimestamp(),
     });

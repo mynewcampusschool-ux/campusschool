@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { api } from '../lib/api';
 import type { AlumniRecord } from '../types/alumni';
 import { ALUMNI_DATA } from '../lib/alumniData';
@@ -102,12 +104,44 @@ function mapRow(r: any): AlumniRecord {
   };
 }
 
+function firestoreUserToAlumni(d: any, uid: string): AlumniRecord {
+  return {
+    id:            `fb_${uid}`,
+    fullName:      d.full_name ?? '',
+    batch:         d.batch_year ?? '',
+    designation:   d.designation ?? '',
+    organization:  d.organization ?? '',
+    profession:    d.profession ?? '',
+    qualification: d.qualification ?? '',
+    city:          d.city ?? '',
+    country:       d.country ?? 'India',
+    photoUrl:      d.avatar ?? d.photo_url ?? undefined,
+    linkedinUrl:   d.linkedin_url ?? undefined,
+    facebookUrl:   d.facebook_url ?? undefined,
+    registeredAt:  d.created_at?.toDate?.()?.toISOString?.() ?? '',
+  };
+}
+
 export function useAlumniData(filters: Filters = {}) {
   const [data, setData] = useState<AlumniRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [firestoreAlumni, setFirestoreAlumni] = useState<AlumniRecord[]>([]);
+  const firestoreRef = useRef<AlumniRecord[]>([]);
+
+  // Real-time Firestore listener — runs once, updates whenever user registers
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      const users = snap.docs
+        .filter((d) => d.data().full_name)
+        .map((d) => firestoreUserToAlumni(d.data(), d.id));
+      firestoreRef.current = users;
+      setFirestoreAlumni(users);
+    });
+    return unsub;
+  }, []);
 
   const params: Record<string, string | number> = {
     page: filters.page ?? 1,
@@ -120,14 +154,20 @@ export function useAlumniData(filters: Filters = {}) {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    const firestoreUsers = firestoreRef.current;
+
     const result = await api.alumni.list(params) as AlumniListResult | null;
     if (result && Array.isArray(result.data) && result.data.length > 0) {
-      setData(result.data.map(mapRow));
-      setTotal(result.total ?? result.data.length);
-      setTotalPages(result.totalPages ?? 1);
+      const apiData = result.data.map(mapRow);
+      const fbIds = new Set(firestoreUsers.map((a) => a.id));
+      const merged = [...firestoreUsers, ...apiData.filter((a) => !fbIds.has(a.id))];
+      setData(merged);
+      setTotal(merged.length);
+      setTotalPages(Math.max(1, Math.ceil(merged.length / (filters.limit ?? 20))));
     } else {
-      // API unavailable or DB empty — fall back to local alumniData.ts
-      let filtered = ALUMNI_DATA;
+      const fbIds = new Set(firestoreUsers.map((a) => a.id));
+      let filtered = [...firestoreUsers, ...ALUMNI_DATA.filter((a) => !fbIds.has(a.id))];
       if (filters.search) {
         const q = filters.search.toLowerCase();
         filtered = filtered.filter(
@@ -150,7 +190,7 @@ export function useAlumniData(filters: Filters = {}) {
       setTotalPages(Math.max(1, Math.ceil(total / limit)));
     }
     setLoading(false);
-  }, [JSON.stringify(params)]);
+  }, [JSON.stringify(params), firestoreAlumni]); // eslint-disable-line
 
   useEffect(() => { load(); }, [load]);
 

@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { usePageView } from './hooks/usePageView';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
@@ -52,6 +53,8 @@ const Loader = () => (
   </div>
 );
 
+const PageViewTracker: React.FC = () => { usePageView(); return null; };
+
 const App: React.FC = () => (
   <ErrorBoundary>
   <HelmetProvider>
@@ -60,6 +63,7 @@ const App: React.FC = () => (
       <BrowserRouter>
         <AdminAuthProvider>
         <AuthProvider>
+        <PageViewTracker />
         <Suspense fallback={<Loader />}>
           <Routes>
             {/* Auth routes */}

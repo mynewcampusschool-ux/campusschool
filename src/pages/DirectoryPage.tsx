@@ -3,7 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiUsers, FiGlobe, FiGrid } from 'react-icons/fi';
-
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { useAlumniData } from '../hooks/useAlumniData';
 import { api } from '../lib/api';
 import AlumniCard from '../components/ui/AlumniCard';
@@ -22,6 +23,15 @@ const DirectoryPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [batches, setBatches] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
+  const [registeredCount, setRegisteredCount] = useState(0);
+
+  // Real-time registered users count from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      setRegisteredCount(snap.size);
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
     api.alumni.batches().then((b) => { if (b) setBatches(b); });

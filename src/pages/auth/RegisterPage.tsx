@@ -104,9 +104,6 @@ const RegisterPage: React.FC = () => {
                   className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all text-gray-700">
                   <option value="">Select School</option>
                   <option>Campus School Main Campus</option>
-                  <option>Campus School North Wing</option>
-                  <option>Campus School Science Block</option>
-                  <option>Campus School Arts & Commerce</option>
                 </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

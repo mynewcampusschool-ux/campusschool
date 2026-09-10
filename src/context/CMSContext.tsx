@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { ALUMNI_DATA } from '../lib/alumniData';
 import { NAV_ITEMS } from '../lib/data';
 import { api } from '../lib/api';
 
@@ -113,7 +116,7 @@ const DEFAULT_TICKER: TickerItem[] = [
 
 const DEFAULT_STATS: StatItem[] = [
   { id: 1, label: 'Years of Excellence', value: 54, suffix: '+' },
-  { id: 2, label: 'Registered Alumni', value: 55, suffix: '' },
+  { id: 2, label: 'Registered Alumni', value: ALUMNI_DATA.length, suffix: '+' },
   { id: 3, label: 'Companies', value: 10, suffix: '+' },
   { id: 4, label: 'Countries', value: 25, suffix: '+' },
 ];
@@ -251,6 +254,20 @@ const CMSContext = createContext<CMSContextValue | null>(null);
 
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cms, setCMS] = useState<CMSStore>(loadStore);
+
+  // Real-time Firestore listener — updates Registered Alumni count live
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      const total = ALUMNI_DATA.length + snap.size;
+      setCMS((prev) => {
+        const updatedStats = prev.stats.map((s) =>
+          s.label === 'Registered Alumni' ? { ...s, value: total } : s
+        );
+        return { ...prev, stats: updatedStats };
+      });
+    });
+    return unsub;
+  }, []);
 
   // Load from API on mount; merge into store
   useEffect(() => {

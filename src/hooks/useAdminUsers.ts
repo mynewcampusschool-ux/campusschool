@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-
-const API = import.meta.env.VITE_API_URL ?? 'https://campusalumni.in/backend/api';
+import {
+  collection, getDocs, doc, updateDoc, deleteDoc, setDoc,
+  query, orderBy, onSnapshot,
+} from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { db, auth, adminAuth } from '../lib/firebase';
 
 export interface AdminUserRow {
   id: string;
@@ -32,73 +36,111 @@ interface Params {
   role?: string;
 }
 
-export function useAdminUsers(params: Params = {}, pollMs = 15000) {
-  const [result,  setResult]  = useState<UsersResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+export function useAdminUsers(params: Params = {}, _pollMs = 15000) {
+  const [allUsers, setAllUsers] = useState<AdminUserRow[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [error,   setError]     = useState<string | null>(null);
+  const unsubRef = useRef<(() => void) | null>(null);
 
-  const fetchUsers = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    setError(null);
-    try {
-      const q = new URLSearchParams();
-      if (params.page)     q.set('page',     String(params.page));
-      if (params.per_page) q.set('per_page', String(params.per_page));
-      if (params.search)   q.set('search',   params.search);
-      if (params.status)   q.set('status',   params.status);
-      if (params.role)     q.set('role',     params.role);
-
-      const res = await fetch(`${API}/admin/users?${q.toString()}`);
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const json = await res.json();
-      setResult(json);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load users.');
-    } finally {
-      setLoading(false);
-    }
-  }, [params.page, params.per_page, params.search, params.status, params.role]); // eslint-disable-line
-
+  // Real-time listener on Firestore users collection
   useEffect(() => {
-    fetchUsers();
-    if (pollMs > 0) {
-      timerRef.current = setInterval(() => fetchUsers(true), pollMs);
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [fetchUsers, pollMs]);
+    setLoading(true);
+    const q = query(collection(db, 'users'), orderBy('created_at', 'desc'));
+    unsubRef.current = onSnapshot(
+      q,
+      (snap) => {
+        const rows: AdminUserRow[] = snap.docs.map((d) => {
+          const r = d.data();
+          return {
+            id:             d.id,
+            full_name:      r.full_name ?? '',
+            email:          r.email ?? '',
+            batch_year:     r.batch_year ?? null,
+            school:         r.school ?? null,
+            role:           r.role ?? 'alumni',
+            status:         r.status ?? 'active',
+            email_verified: r.email_verified ? 1 : 0,
+            last_login_at:  r.last_login_at ?? null,
+            created_at:     r.created_at?.toDate?.()?.toISOString() ?? '',
+            avatar:         r.avatar ?? null,
+          };
+        });
+        setAllUsers(rows);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+    return () => { unsubRef.current?.(); };
+  }, []);
 
-  const mutate = useCallback(() => fetchUsers(), [fetchUsers]);
+  // Client-side filter + paginate
+  const per_page = params.per_page ?? 20;
+  const page     = params.page ?? 1;
+
+  const filtered = allUsers.filter((u) => {
+    if (params.search) {
+      const q = params.search.toLowerCase();
+      if (
+        !u.full_name.toLowerCase().includes(q) &&
+        !u.email.toLowerCase().includes(q) &&
+        !(u.batch_year ?? '').toLowerCase().includes(q)
+      ) return false;
+    }
+    if (params.status && u.status !== params.status) return false;
+    if (params.role   && u.role   !== params.role)   return false;
+    return true;
+  });
+
+  const total     = filtered.length;
+  const last_page = Math.max(1, Math.ceil(total / per_page));
+  const start     = (page - 1) * per_page;
+  const data      = filtered.slice(start, start + per_page);
+
+  const result: UsersResponse = { data, total, page, per_page, last_page };
+
+  const mutate = useCallback(() => {}, []); // no-op, real-time handles it
 
   const updateUserStatus = useCallback(async (id: string, newStatus: string) => {
-    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
-    mutate();
-  }, [mutate]);
+    await updateDoc(doc(db, 'users', id), { status: newStatus });
+  }, []);
 
   const updateUserRole = useCallback(async (id: string, newRole: string) => {
-    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole }) });
-    mutate();
-  }, [mutate]);
+    await updateDoc(doc(db, 'users', id), { role: newRole });
+  }, []);
 
   const deleteUser = useCallback(async (id: string) => {
-    await fetch(`${API}/admin/users/${id}`, { method: 'DELETE' });
-    mutate();
-  }, [mutate]);
+    await deleteDoc(doc(db, 'users', id));
+  }, []);
 
   const createUser = useCallback(async (payload: Record<string, string>) => {
-    await fetch(`${API}/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    mutate();
-  }, [mutate]);
+    const cred = await createUserWithEmailAndPassword(adminAuth, payload.email, payload.password);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid:            cred.user.uid,
+      full_name:      payload.full_name ?? '',
+      email:          payload.email.toLowerCase(),
+      batch_year:     payload.batch_year || null,
+      school:         payload.school || null,
+      role:           payload.role ?? 'alumni',
+      status:         payload.status ?? 'active',
+      email_verified: false,
+      created_at:     new Date(),
+    });
+  }, []);
 
   const updateUser = useCallback(async (id: string, payload: Record<string, string>) => {
-    await fetch(`${API}/admin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    mutate();
-  }, [mutate]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = payload;
+    await updateDoc(doc(db, 'users', id), rest);
+  }, []);
 
-  const resetPassword = useCallback(async (id: string, password: string) => {
-    await fetch(`${API}/admin/users/${id}/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
-    mutate();
-  }, [mutate]);
+  const resetPassword = useCallback(async (_id: string, _password: string) => {
+    // Firebase Admin SDK needed for server-side reset; show info to admin
+    throw new Error('Password reset via email is handled by Firebase. Use "Forgot Password" flow.');
+  }, []);
 
   return {
     result, loading, error, mutate,
