@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { ProfileData, Skill, Experience, Education, Project, Achievement, GalleryItem } from '../types/profile';
 
@@ -16,6 +16,16 @@ function loadStored(uid: string): Partial<ProfileData> {
 function persist(uid: string, data: Partial<ProfileData>) {
   try { localStorage.setItem(`${STORAGE_KEY}_${uid}`, JSON.stringify(data)); } catch { /* noop */ }
 }
+
+// Fields saved to Firestore profile doc
+const FIRESTORE_FIELDS: (keyof ProfileData)[] = [
+  'name','bio','objective','designation','company','department','batch','school',
+  'admissionNo','employeeId','studentId','teacherId','alumniId','phone','website',
+  'city','state','country','industry','availability','languages','interests',
+  'photoURL','coverURL','coverColor','verified','role','joinedDate',
+  'socialLinks','skills','experience','education','projects','achievementsList','gallery',
+  'followers','following','connections','posts','eventsJoined','certificates','achievements','profileViews',
+];
 
 export function useProfile(user: FirebaseUser | null) {
   const stored = useMemo(() => user ? loadStored(user.uid) : {}, [user]);
@@ -69,28 +79,50 @@ export function useProfile(user: FirebaseUser | null) {
     coverColor: stored.coverColor ?? 'linear-gradient(135deg,#0B6B4B 0%,#094d36 50%,#D4AF37 100%)',
   }));
 
-  // Load extra data from Firestore (full_name, batch_year, school)
+  // Real-time Firestore listener — loads profile + counts
   useEffect(() => {
     if (!user) return;
-    getDoc(doc(db, 'users', user.uid)).then(snap => {
-      if (!snap.exists()) return;
-      const data = snap.data();
+    const ref = doc(db, 'profiles', user.uid);
+    const unsub = onSnapshot(ref, snap => {
+      if (!snap.exists()) {
+        // First time — seed from users collection
+        getDoc(doc(db, 'users', user.uid)).then(usnap => {
+          const u = usnap.data() ?? {};
+          const seed: Partial<ProfileData> = {
+            name: u.full_name || user.displayName || 'Alumni Member',
+            batch: u.batch_year || '',
+            school: u.school || 'Campus School Pantnagar',
+            email: user.email ?? '',
+            joinedDate: u.createdAt?.toDate?.().toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0],
+            followers: 0, following: 0, connections: 0,
+            posts: 0, eventsJoined: 0, certificates: 0, profileViews: 0,
+          };
+          setDoc(ref, seed, { merge: true });
+        }).catch(() => {});
+        return;
+      }
+      const d = snap.data();
       setProfileState(prev => {
-        const updated = {
-          ...prev,
-          name:  data.full_name  || prev.name,
-          batch: data.batch_year || prev.batch,
-          school: data.school   || prev.school,
-        };
+        const updated = { ...prev, ...d, uid: user.uid, email: user.email ?? prev.email };
         persist(user.uid, updated);
         return updated;
       });
-    }).catch(() => {/* offline — use cached */});
+    }, () => {/* offline */});
+    return unsub;
   }, [user]);
+
   const updateProfile = useCallback((updates: Partial<ProfileData>) => {
     setProfileState(prev => {
       const next = { ...prev, ...updates };
-      if (user) persist(user.uid, next);
+      if (user) {
+        persist(user.uid, next);
+        // Save only allowed fields to Firestore
+        const fsData: Record<string, unknown> = {};
+        FIRESTORE_FIELDS.forEach(k => { if (k in updates) fsData[k] = updates[k]; });
+        if (Object.keys(fsData).length > 0) {
+          setDoc(doc(db, 'profiles', user.uid), fsData, { merge: true }).catch(() => {});
+        }
+      }
       return next;
     });
   }, [user]);
@@ -121,9 +153,23 @@ export function useProfile(user: FirebaseUser | null) {
   const addProject = useCallback((p: Project) => updateProfile({ projects: [...(profile.projects ?? []), p] }), [profile.projects, updateProfile]);
   const removeProject = useCallback((id: string) => updateProfile({ projects: profile.projects?.filter(x => x.id !== id) }), [profile.projects, updateProfile]);
 
-  const addAchievement = useCallback((a: Achievement) => updateProfile({ achievementsList: [...(profile.achievementsList ?? []), a] }), [profile.achievementsList, updateProfile]);
-  const removeAchievement = useCallback((id: string) => updateProfile({ achievementsList: profile.achievementsList?.filter(x => x.id !== id) }), [profile.achievementsList, updateProfile]);
-  const updateAchievement = useCallback((a: Achievement) => updateProfile({ achievementsList: profile.achievementsList?.map(x => x.id === a.id ? a : x) }), [profile.achievementsList, updateProfile]);
+  const addAchievement = useCallback((a: Achievement) => {
+    const newList = [...(profile.achievementsList ?? []), a];
+    const certCount = newList.filter(x => x.type === 'certification').length;
+    updateProfile({ achievementsList: newList, certificates: certCount, achievements: newList.length });
+  }, [profile.achievementsList, updateProfile]);
+
+  const removeAchievement = useCallback((id: string) => {
+    const newList = (profile.achievementsList ?? []).filter(x => x.id !== id);
+    const certCount = newList.filter(x => x.type === 'certification').length;
+    updateProfile({ achievementsList: newList, certificates: certCount, achievements: newList.length });
+  }, [profile.achievementsList, updateProfile]);
+
+  const updateAchievement = useCallback((a: Achievement) => {
+    const newList = (profile.achievementsList ?? []).map(x => x.id === a.id ? a : x);
+    const certCount = newList.filter(x => x.type === 'certification').length;
+    updateProfile({ achievementsList: newList, certificates: certCount, achievements: newList.length });
+  }, [profile.achievementsList, updateProfile]);
 
   const addGalleryItem = useCallback((g: GalleryItem) => updateProfile({ gallery: [...(profile.gallery ?? []), g] }), [profile.gallery, updateProfile]);
   const removeGalleryItem = useCallback((id: string) => updateProfile({ gallery: profile.gallery?.filter(x => x.id !== id) }), [profile.gallery, updateProfile]);

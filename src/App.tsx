@@ -122,6 +122,7 @@ const App: React.FC = () => (
             {/* Networking */}
             <Route path="/networking"               element={<Layout><NetworkingPage /></Layout>} />
             <Route path="/networking/connect"       element={<Layout><ConnectPage /></Layout>} />
+            <Route path="/connect"                  element={<Layout><ConnectPage /></Layout>} />
             <Route path="/networking/startups"      element={<Layout><StartupFoundersPage /></Layout>} />
             <Route path="/networking/investors"     element={<Layout><InvestorsPage /></Layout>} />
 

@@ -1,13 +1,16 @@
-import React, { useRef, useState, memo, useMemo } from 'react';
+import React, { useRef, useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   FiCamera, FiMapPin, FiMail, FiPhone, FiGlobe, FiCalendar, FiEye,
   FiUserPlus, FiMessageCircle, FiShare2, FiDownload, FiEdit2,
-  FiBriefcase, FiX, FiStar,
+  FiBriefcase, FiX, FiStar, FiUserCheck,
 } from 'react-icons/fi';
 import {
   MdOutlineQrCode2, MdOutlineSchool, MdOutlineBusiness, MdVerified,
 } from 'react-icons/md';
+import { doc, updateDoc, arrayUnion, arrayRemove, increment, getDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import type { ProfileData, ProfileTab, UserRole } from '../../types/profile';
 import RoleBadge from './RoleBadge';
 import CompletionRing from './CompletionRing';
@@ -86,14 +89,60 @@ interface Props {
   onEditClick: () => void;
   onCoverChange: (url: string) => void;
   onPhotoChange: (url: string) => void;
+  viewerUid?: string;
 }
 
 const ProfileHeader: React.FC<Props> = ({
   profile, completion, activeTab, onTabChange, onEditClick, onCoverChange, onPhotoChange,
+  viewerUid,
 }) => {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [qrOpen, setQrOpen] = useState(false);
+  const [msgOpen, setMsgOpen] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const navigate = useNavigate();
+
+  // own profile = viewer is the profile owner
+  const isOwnProfile = !viewerUid || viewerUid === profile.uid;
+
+  // Check connection status on mount
+  useEffect(() => {
+    if (!viewerUid || isOwnProfile || !profile.uid) return;
+    getDoc(doc(db, 'profiles', profile.uid)).then(snap => {
+      const data = snap.data();
+      setIsConnected((data?.connectedWith ?? []).includes(viewerUid));
+    }).catch(() => {});
+  }, [viewerUid, profile.uid, isOwnProfile]);
+
+  const handleConnect = useCallback(async () => {
+    if (isOwnProfile) { navigate('/connect'); return; }
+    if (!viewerUid || connecting) return;
+    setConnecting(true);
+    try {
+      const profileRef = doc(db, 'profiles', profile.uid);
+      const viewerRef  = doc(db, 'profiles', viewerUid);
+      if (isConnected) {
+        await updateDoc(profileRef, { connectedWith: arrayRemove(viewerUid), connections: increment(-1) });
+        await updateDoc(viewerRef,  { connectedWith: arrayRemove(profile.uid), connections: increment(-1) });
+        setIsConnected(false);
+      } else {
+        await updateDoc(profileRef, { connectedWith: arrayUnion(viewerUid), connections: increment(1) });
+        await updateDoc(viewerRef,  { connectedWith: arrayUnion(profile.uid), connections: increment(1) });
+        setIsConnected(true);
+      }
+    } catch { /* noop */ } finally { setConnecting(false); }
+  }, [viewerUid, profile.uid, isOwnProfile, isConnected, connecting, navigate]);
+
+  const handleMessage = useCallback(() => {
+    if (isOwnProfile) { navigate('/connect'); return; }
+    setMsgOpen(true);
+  }, [isOwnProfile, navigate]);
+
+  const handlePDF = useCallback(() => {
+    window.print();
+  }, []);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>, cb: (url: string) => void) => {
     const file = e.target.files?.[0];
@@ -155,13 +204,28 @@ const ProfileHeader: React.FC<Props> = ({
       <div className="px-4 md:px-6 pb-0">
         {/* Avatar row */}
         <div className="flex flex-col sm:flex-row sm:items-end gap-3 mb-4">
-          <div className="relative flex-shrink-0 self-start -mt-8 sm:-mt-12">
+          <div className="relative flex-shrink-0 self-start -mt-10 sm:-mt-14">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ margin: -6 }}>
-              <CompletionRing pct={completion} size={108} stroke={3} />
+              <CompletionRing pct={completion} size={112} stroke={3} />
             </div>
-            <div className="w-24 h-24 rounded-full border-2 border-white shadow-premium bg-primary flex items-center justify-center overflow-hidden">
+            <div
+              style={{
+                width: 96, height: 96, borderRadius: '50%',
+                border: '3px solid white',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                overflow: 'hidden',
+                background: '#0B6B4B',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                position: 'relative', zIndex: 1,
+              }}
+            >
               {profile.photoURL
-                ? <img src={profile.photoURL} alt={profile.name} className="w-full h-full object-cover" loading="lazy" />
+                ? <img
+                    src={profile.photoURL}
+                    alt={profile.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    loading="lazy"
+                  />
                 : <span className="text-white font-black text-2xl">{initials}</span>
               }
             </div>
@@ -240,16 +304,30 @@ const ProfileHeader: React.FC<Props> = ({
             <button onClick={onEditClick} className="btn-primary text-xs py-2 px-3 gap-1.5">
               <FiEdit2 size={13} /> Edit
             </button>
-            <button className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all">
-              <FiUserPlus size={13} /> Connect
+            <button
+              onClick={handleConnect}
+              disabled={connecting}
+              className={`flex items-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl transition-all border ${
+                isOwnProfile
+                  ? 'border-border text-gray-600 hover:border-primary hover:text-primary'
+                  : isConnected
+                    ? 'bg-primary/10 border-primary text-primary'
+                    : 'border-border text-gray-600 hover:border-primary hover:text-primary'
+              }`}
+            >
+              {!isOwnProfile && isConnected ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
+              {isOwnProfile ? 'Find Alumni' : isConnected ? 'Friends ✓' : 'Add Friend'}
             </button>
-            <button className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all">
+            <button
+              onClick={handleMessage}
+              className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all"
+            >
               <FiMessageCircle size={13} /> Message
             </button>
             <button onClick={handleShare} className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all">
               <FiShare2 size={13} /> Share
             </button>
-            <button className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all">
+            <button onClick={handlePDF} className="flex items-center gap-1.5 border border-border text-gray-600 hover:border-primary hover:text-primary text-xs font-semibold py-2 px-3 rounded-xl transition-all">
               <FiDownload size={13} /> PDF
             </button>
           </div>
@@ -330,6 +408,36 @@ const ProfileHeader: React.FC<Props> = ({
                   <FiDownload size={12} />
                 </a>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Message Modal */}
+      <AnimatePresence>
+        {msgOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.55)' }}
+            onClick={() => setMsgOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-glass p-5 flex flex-col gap-4 w-[90vw] max-w-xs"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-text text-sm">Message {profile.name}</h3>
+                <button onClick={() => setMsgOpen(false)} className="text-gray-400 hover:text-gray-600"><FiX size={16} /></button>
+              </div>
+              <p className="text-xs text-gray-500">Send an email to connect with this alumni.</p>
+              <a
+                href={`mailto:${profile.email}?subject=Hello from Campus School Alumni Portal`}
+                className="btn-primary text-xs py-2.5 justify-center"
+                onClick={() => setMsgOpen(false)}
+              >
+                <FiMessageCircle size={13} /> Send Email
+              </a>
             </motion.div>
           </motion.div>
         )}

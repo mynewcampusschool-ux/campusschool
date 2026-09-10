@@ -139,6 +139,7 @@ const ProfilePage: React.FC = () => {
           onEditClick={() => setEditOpen(true)}
           onCoverChange={url => updateProfile({ coverURL: url })}
           onPhotoChange={url => updateProfile({ photoURL: url })}
+          viewerUid={user.uid}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
