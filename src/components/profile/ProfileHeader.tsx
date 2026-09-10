@@ -9,7 +9,7 @@ import {
 import {
   MdOutlineQrCode2, MdOutlineSchool, MdOutlineBusiness, MdVerified,
 } from 'react-icons/md';
-import { doc, updateDoc, arrayUnion, arrayRemove, increment, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, increment, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { ProfileData, ProfileTab, UserRole } from '../../types/profile';
 import RoleBadge from './RoleBadge';
@@ -101,18 +101,20 @@ const ProfileHeader: React.FC<Props> = ({
   const [qrOpen, setQrOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isPending, setIsPending]     = useState(false);
   const navigate = useNavigate();
 
   // own profile = viewer is the profile owner
   const isOwnProfile = !viewerUid || viewerUid === profile.uid;
 
-  // Check connection status on mount
+  // Check follow status on mount
   useEffect(() => {
     if (!viewerUid || isOwnProfile || !profile.uid) return;
-    getDoc(doc(db, 'profiles', profile.uid)).then(snap => {
-      const data = snap.data();
-      setIsConnected((data?.connectedWith ?? []).includes(viewerUid));
+    getDoc(doc(db, 'profiles', viewerUid)).then(snap => {
+      const d = snap.data() ?? {};
+      setIsFollowing((d.following_list ?? []).includes(profile.uid));
+      setIsPending((d.pendingFollow ?? []).includes(profile.uid));
     }).catch(() => {});
   }, [viewerUid, profile.uid, isOwnProfile]);
 
@@ -121,19 +123,28 @@ const ProfileHeader: React.FC<Props> = ({
     if (!viewerUid || connecting) return;
     setConnecting(true);
     try {
-      const profileRef = doc(db, 'profiles', profile.uid);
+      const reqRef     = doc(db, 'followRequests', profile.uid, 'incoming', viewerUid);
       const viewerRef  = doc(db, 'profiles', viewerUid);
-      if (isConnected) {
-        await updateDoc(profileRef, { connectedWith: arrayRemove(viewerUid), connections: increment(-1) });
-        await updateDoc(viewerRef,  { connectedWith: arrayRemove(profile.uid), connections: increment(-1) });
-        setIsConnected(false);
+      if (isFollowing) {
+        // Unfollow
+        await updateDoc(viewerRef, { following_list: arrayRemove(profile.uid), following: increment(-1) });
+        await updateDoc(doc(db, 'profiles', profile.uid), { followers: increment(-1) });
+        setIsFollowing(false);
+      } else if (isPending) {
+        // Cancel request
+        await deleteDoc(reqRef);
+        await updateDoc(viewerRef, { pendingFollow: arrayRemove(profile.uid) });
+        setIsPending(false);
       } else {
-        await updateDoc(profileRef, { connectedWith: arrayUnion(viewerUid), connections: increment(1) });
-        await updateDoc(viewerRef,  { connectedWith: arrayUnion(profile.uid), connections: increment(1) });
-        setIsConnected(true);
+        // Send follow request
+        const vSnap = await getDoc(viewerRef);
+        const vData = vSnap.data() ?? {};
+        await setDoc(reqRef, { from: viewerUid, name: vData.name || '', photo: vData.photoURL || '', createdAt: Date.now() });
+        await updateDoc(viewerRef, { pendingFollow: arrayUnion(profile.uid) });
+        setIsPending(true);
       }
     } catch { /* noop */ } finally { setConnecting(false); }
-  }, [viewerUid, profile.uid, isOwnProfile, isConnected, connecting, navigate]);
+  }, [viewerUid, profile.uid, isOwnProfile, isFollowing, isPending, connecting, navigate]);
 
   const handleMessage = useCallback(() => {
     if (isOwnProfile) { navigate('/connect'); return; }
@@ -310,13 +321,15 @@ const ProfileHeader: React.FC<Props> = ({
               className={`flex items-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl transition-all border ${
                 isOwnProfile
                   ? 'border-border text-gray-600 hover:border-primary hover:text-primary'
-                  : isConnected
+                  : isFollowing
                     ? 'bg-primary/10 border-primary text-primary'
-                    : 'border-border text-gray-600 hover:border-primary hover:text-primary'
+                    : isPending
+                      ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
+                      : 'border-border text-gray-600 hover:border-primary hover:text-primary'
               }`}
             >
-              {!isOwnProfile && isConnected ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
-              {isOwnProfile ? 'Find Alumni' : isConnected ? 'Friends ✓' : 'Add Friend'}
+              {!isOwnProfile && isFollowing ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
+              {isOwnProfile ? 'Find Alumni' : isFollowing ? 'Following ✓' : isPending ? 'Requested' : '+ Follow'}
             </button>
             <button
               onClick={handleMessage}

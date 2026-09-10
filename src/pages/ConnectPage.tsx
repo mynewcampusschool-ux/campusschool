@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 import {
   collection, onSnapshot, doc, updateDoc,
-  arrayUnion, arrayRemove, increment, setDoc, getDoc,
+  arrayUnion, arrayRemove, increment, setDoc, getDoc, deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -50,13 +50,12 @@ const CardAvatar: React.FC<{ alumni: UnifiedAlumni }> = ({ alumni }) => {
 /* ── Profile Modal ───────────────────────────────────── */
 const ProfileModal: React.FC<{
   alumni: UnifiedAlumni;
-  isConnected: boolean;
   isFollowed: boolean;
-  onConnect: () => void;
+  isPending: boolean;
   onFollow: () => void;
   onClose: () => void;
   loggedIn: boolean;
-}> = ({ alumni, isConnected, isFollowed, onConnect, onFollow, onClose, loggedIn }) => {
+}> = ({ alumni, isFollowed, isPending, onFollow, onClose, loggedIn }) => {
   const [err, setErr] = useState(false);
   const initials = (alumni.name || 'A').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
@@ -178,25 +177,17 @@ const ProfileModal: React.FC<{
             {loggedIn && alumni.uid ? (
               <>
                 <button
-                  onClick={onConnect}
-                  className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl border transition-all ${
-                    isConnected
-                      ? 'bg-primary/10 border-primary text-primary'
-                      : 'border-border text-gray-600 hover:border-primary hover:text-primary'
-                  }`}
-                >
-                  {isConnected ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
-                  {isConnected ? 'Friends ✓' : 'Add Friend'}
-                </button>
-                <button
                   onClick={onFollow}
                   className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl border transition-all ${
                     isFollowed
-                      ? 'bg-accent/10 border-accent text-accent-dark'
-                      : 'border-border text-gray-600 hover:border-accent hover:text-accent-dark'
+                      ? 'bg-primary/10 border-primary text-primary'
+                      : isPending
+                        ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
+                        : 'border-border text-gray-600 hover:border-primary hover:text-primary'
                   }`}
                 >
-                  {isFollowed ? '✓ Following' : '+ Follow'}
+                  {isFollowed ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
+                  {isFollowed ? 'Following ✓' : isPending ? 'Requested' : '+ Follow'}
                 </button>
                 {alumni.email && (
                   <a
@@ -228,8 +219,8 @@ const ConnectPage: React.FC = () => {
   const { user: me } = useAuth();
   const [firestoreUsers, setFirestoreUsers] = useState<UnifiedAlumni[]>([]);
   const [search, setSearch]       = useState('');
-  const [connected, setConnected] = useState<Set<string>>(new Set());
-  const [followed, setFollowed]   = useState<Set<string>>(new Set());
+  const [followed, setFollowed]     = useState<Set<string>>(new Set());
+  const [pendingFollow, setPending]  = useState<Set<string>>(new Set());
   const [selected, setSelected]   = useState<UnifiedAlumni | null>(null);
   const [loading, setLoading]     = useState(true);
 
@@ -285,14 +276,24 @@ const ConnectPage: React.FC = () => {
     return unsub;
   }, [me?.uid]);
 
-  // My connections & following
+  // My following + pending follow requests
   useEffect(() => {
     if (!me) return;
     const unsub = onSnapshot(doc(db, 'profiles', me.uid), snap => {
       if (!snap.exists()) return;
       const d = snap.data();
-      setConnected(new Set(d.connectedWith ?? []));
       setFollowed(new Set(d.following_list ?? []));
+    });
+    return unsub;
+  }, [me]);
+
+  useEffect(() => {
+    if (!me) return;
+    // listen to all incoming docs under followRequests where sender = me
+    // simpler: track pending in my own profile
+    const unsub = onSnapshot(doc(db, 'profiles', me.uid), snap => {
+      if (!snap.exists()) return;
+      setPending(new Set(snap.data().pendingFollow ?? []));
     });
     return unsub;
   }, [me]);
@@ -305,36 +306,29 @@ const ConnectPage: React.FC = () => {
     }
   }, []);
 
-  const handleConnect = useCallback(async (target: UnifiedAlumni) => {
-    if (!me || !target.uid) return;
-    await ensureProfile(me.uid);
-    await ensureProfile(target.uid);
-    const myRef = doc(db, 'profiles', me.uid);
-    const tRef  = doc(db, 'profiles', target.uid);
-    if (connected.has(target.uid)) {
-      await updateDoc(myRef, { connectedWith: arrayRemove(target.uid), connections: increment(-1) });
-      await updateDoc(tRef,  { connectedWith: arrayRemove(me.uid),     connections: increment(-1) });
-    } else {
-      await updateDoc(myRef, { connectedWith: arrayUnion(target.uid), connections: increment(1) });
-      await updateDoc(tRef,  { connectedWith: arrayUnion(me.uid),     connections: increment(1) });
-    }
-  }, [me, connected, ensureProfile]);
-
   const handleFollow = useCallback(async (target: UnifiedAlumni) => {
     if (!me || !target.uid) return;
     await ensureProfile(me.uid);
     await ensureProfile(target.uid);
-    const myRef = doc(db, 'profiles', me.uid);
-    const tRef  = doc(db, 'profiles', target.uid);
-    if (followed.has(target.uid)) {
-      await updateDoc(myRef, { following_list: arrayRemove(target.uid), following: increment(-1) });
-      await updateDoc(tRef,  { followers: increment(-1) });
-    } else {
-      await updateDoc(myRef, { following_list: arrayUnion(target.uid), following: increment(1) });
-      await updateDoc(tRef,  { followers: increment(1) });
-    }
-  }, [me, followed, ensureProfile]);
+    const myRef  = doc(db, 'profiles', me.uid);
+    const reqRef = doc(db, 'followRequests', target.uid, 'incoming', me.uid);
 
+    if (followed.has(target.uid)) {
+      // Unfollow
+      await updateDoc(myRef, { following_list: arrayRemove(target.uid), following: increment(-1) });
+      await updateDoc(doc(db, 'profiles', target.uid), { followers: increment(-1) });
+    } else if (pendingFollow.has(target.uid)) {
+      // Cancel request
+      await deleteDoc(reqRef);
+      await updateDoc(myRef, { pendingFollow: arrayRemove(target.uid) });
+    } else {
+      // Send follow request
+      await setDoc(reqRef, { from: me.uid, name: me.displayName || '', photo: me.photoURL || '', createdAt: Date.now() });
+      await updateDoc(myRef, { pendingFollow: arrayUnion(target.uid) });
+    }
+  }, [me, followed, pendingFollow, ensureProfile]);
+
+  // Remove duplicate useEffect for pending (already handled above)
   const allAlumni = useMemo(() => {
     const regNames = new Set(firestoreUsers.map(u => u.name.toLowerCase().trim()));
     return [...firestoreUsers, ...staticAlumni.filter(a => !regNames.has(a.name.toLowerCase().trim()))];
@@ -400,7 +394,6 @@ const ConnectPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((u, i) => {
-              const isConn     = u.uid ? connected.has(u.uid) : false;
               const isFollowed = u.uid ? followed.has(u.uid) : false;
               return (
                 <motion.div
@@ -438,29 +431,22 @@ const ConnectPage: React.FC = () => {
                       onClick={() => setSelected(u)}
                       className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl border border-border text-gray-600 hover:border-primary hover:text-primary transition-all"
                     >
-                      <FiEye size={12} /> View Profile
+                      <FiEye size={12} /> View
                     </button>
                     {u.uid && me && (
-                      <>
-                        <button
-                          onClick={() => handleConnect(u)}
-                          title={isConn ? 'Remove Friend' : 'Add Friend'}
-                          className={`flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-2 rounded-xl border transition-all ${
-                            isConn ? 'bg-primary/10 border-primary text-primary' : 'border-border text-gray-500 hover:border-primary hover:text-primary'
-                          }`}
-                        >
-                          {isConn ? <FiUserCheck size={12} /> : <FiUserPlus size={12} />}
-                        </button>
-                        <button
-                          onClick={() => handleFollow(u)}
-                          title={isFollowed ? 'Unfollow' : 'Follow'}
-                          className={`text-xs font-bold px-2.5 rounded-xl border transition-all ${
-                            isFollowed ? 'bg-accent/10 border-accent text-accent-dark' : 'border-border text-gray-500 hover:border-accent hover:text-accent-dark'
-                          }`}
-                        >
-                          {isFollowed ? '✓' : '+'}
-                        </button>
-                      </>
+                      <button
+                        onClick={() => handleFollow(u)}
+                        className={`flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl border transition-all ${
+                          isFollowed
+                            ? 'bg-primary/10 border-primary text-primary'
+                            : pendingFollow.has(u.uid!)
+                              ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
+                              : 'border-border text-gray-500 hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {isFollowed ? <FiUserCheck size={12} /> : <FiUserPlus size={12} />}
+                        {isFollowed ? 'Following' : pendingFollow.has(u.uid!) ? 'Requested' : '+ Follow'}
+                      </button>
                     )}
                   </div>
                 </motion.div>
@@ -474,9 +460,8 @@ const ConnectPage: React.FC = () => {
         {selected && (
           <ProfileModal
             alumni={selected}
-            isConnected={selected.uid ? connected.has(selected.uid) : false}
             isFollowed={selected.uid ? followed.has(selected.uid) : false}
-            onConnect={() => handleConnect(selected)}
+            isPending={selected.uid ? pendingFollow.has(selected.uid) : false}
             onFollow={() => handleFollow(selected)}
             onClose={() => setSelected(null)}
             loggedIn={!!me}
