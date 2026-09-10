@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  collection, getDocs, doc, updateDoc, deleteDoc, setDoc,
+  collection, doc, updateDoc, deleteDoc, setDoc,
   query, orderBy, onSnapshot,
 } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { db, auth, adminAuth } from '../lib/firebase';
+import { db, adminAuth } from '../lib/firebase';
 
 export interface AdminUserRow {
   id: string;
