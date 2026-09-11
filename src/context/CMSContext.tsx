@@ -145,7 +145,7 @@ const DEFAULT_GALLERY: GalleryImage[] = [
 
 const DEFAULT_CTA: CTAData = {
   heading: 'Be Part of the Campus School Pantnagar Family',
-  description: 'Connect with 55 alumni across 25+ countries. Share your journey, find opportunities, and give back to the community that shaped you.',
+  description: `Connect with ${ALUMNI_DATA.length}+ alumni across 25+ countries. Share your journey, find opportunities, and give back to the community that shaped you.`,
   primaryBtnLabel: "Register Now — It's Free", primaryBtnLink: '/auth/register',
   secondaryBtnLabel: 'Explore Alumni', secondaryBtnLink: '/directory',
 };
@@ -179,7 +179,7 @@ const DEFAULT_STORE: CMSStore = {
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
 const LS_KEY = 'csp_cms_store';
-const LS_VERSION = 8; // bumped — stats reduced to 4
+const LS_VERSION = 9; // bumped — CTA description dynamic
 
 // ── Field-level sanitisers ────────────────────────────────────────────────────
 

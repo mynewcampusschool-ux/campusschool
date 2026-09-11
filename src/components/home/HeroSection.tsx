@@ -3,26 +3,12 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiUsers, FiArrowRight, FiPlay } from 'react-icons/fi';
 import { useCMS } from '../../context/CMSContext';
-import { api } from '../../lib/api';
 import { ALUMNI_DATA } from '../../lib/alumniData';
-
-function useAlumniCount() {
-  const [count, setCount] = useState(ALUMNI_DATA.length);
-  useEffect(() => {
-    if (!import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost')) {
-      setCount(ALUMNI_DATA.length);
-      return;
-    }
-    api.alumni.count().then((res: any) => {
-      if (res?.count && res.count > ALUMNI_DATA.length) setCount(res.count);
-    }).catch(() => {});
-  }, []);
-  return count;
-}
 
 const HeroSection: React.FC = () => {
   const { cms } = useCMS();
-  const alumniCount = useAlumniCount();
+  const registeredStat = cms.stats.find(s => s.label === 'Registered Alumni');
+  const alumniCount = registeredStat ? registeredStat.value : ALUMNI_DATA.length;
   const HERO_SLIDES = cms.heroSlides.filter((s) => s.enabled);
   const slideCount = HERO_SLIDES.length;
   const [current, setCurrent] = useState(0);
@@ -105,7 +91,7 @@ const HeroSection: React.FC = () => {
                     {slide.subtitle}
                   </h2>
                   <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'clamp(0.875rem, 2vw, 1.05rem)', lineHeight: 1.7, marginBottom: '1.5rem', maxWidth: '520px' }}>
-                    {slide.description}
+                    {slide.description.replace(/\d+,?\d*\+?(?= alumni)/i, `${alumniCount}+`)}
                   </p>
 
                   <div className="flex flex-col sm:flex-row flex-wrap gap-2 mb-4 sm:mb-6">
@@ -134,7 +120,7 @@ const HeroSection: React.FC = () => {
                   {/* Trust badges */}
                   <div className="flex flex-wrap gap-4">
                     {[
-                      { val: String(alumniCount), lbl: 'Alumni' },
+                      { val: `${alumniCount}+`, lbl: 'Alumni' },
                       { val: '25+', lbl: 'Countries' },
                       { val: '50+', lbl: 'Years' },
                       { val: '10+', lbl: 'Companies' },

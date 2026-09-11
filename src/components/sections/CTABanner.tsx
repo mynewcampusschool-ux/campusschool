@@ -8,6 +8,9 @@ import { useCMS } from '../../context/CMSContext';
 const CTABanner: React.FC = () => {
   const { cms } = useCMS();
   const { cta } = cms;
+  const registeredStat = cms.stats.find(s => s.label === 'Registered Alumni');
+  const alumniCount = registeredStat ? `${registeredStat.value}${registeredStat.suffix}` : '55+';
+  const description = cta.description.replace(/\d+\+?(?= alumni)/, alumniCount);
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
 
   return (
@@ -60,7 +63,7 @@ const CTABanner: React.FC = () => {
           </h2>
 
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '2.5rem', maxWidth: '600px', margin: '0 auto 2.5rem' }}>
-            {cta.description}
+            {description}
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center mb-10">
@@ -98,15 +101,10 @@ const CTABanner: React.FC = () => {
 
           {/* Trust indicators */}
           <div className="flex flex-wrap items-center justify-center gap-8">
-            {[
-              { val: '55', lbl: 'Registered Alumni' },
-              { val: '10+', lbl: 'Countries' },
-              { val: '10+', lbl: 'Active Mentors' },
-              { val: '50+', lbl: 'Years of Legacy' },
-            ].map((s) => (
-              <div key={s.lbl} style={{ textAlign: 'center' }}>
-                <div style={{ color: '#D4AF37', fontWeight: 900, fontSize: '1.5rem', lineHeight: 1 }}>{s.val}</div>
-                <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.72rem', fontWeight: 500, marginTop: 4 }}>{s.lbl}</div>
+            {cms.stats.map((s) => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ color: '#D4AF37', fontWeight: 900, fontSize: '1.5rem', lineHeight: 1 }}>{s.value}{s.suffix}</div>
+                <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.72rem', fontWeight: 500, marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
           </div>
