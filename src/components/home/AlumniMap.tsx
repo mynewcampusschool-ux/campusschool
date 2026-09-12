@@ -105,11 +105,12 @@ const AlumniMap: React.FC = () => {
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      style={{
-                        default: { fill: '#b8cc80', stroke: '#8fa860', strokeWidth: 0.4, outline: 'none' },
-                        hover:   { fill: '#f5d76e', stroke: '#c8a830', strokeWidth: 0.4, outline: 'none' },
-                        pressed: { fill: '#f5d76e', outline: 'none' },
-                      }}
+                      fill="#b8cc80"
+                      stroke="#8fa860"
+                      strokeWidth={0.4}
+                      style={{ outline: 'none' }}
+                      onMouseEnter={(e) => { (e.target as SVGPathElement).setAttribute('fill', '#f5d76e'); }}
+                      onMouseLeave={(e) => { (e.target as SVGPathElement).setAttribute('fill', '#b8cc80'); }}
                     />
                   ))
                 }
