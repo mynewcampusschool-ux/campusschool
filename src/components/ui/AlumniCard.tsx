@@ -9,10 +9,13 @@ import { resolvePhoto, localCandidates } from '../../lib/alumniPhotos';
 
 /* ── Default avatar ── */
 const DefaultAvatar: React.FC<{ name: string }> = ({ name }) => {
-  const initials = name.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const initials = words.length >= 2
+    ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+    : (words[0]?.slice(0, 2) ?? 'A').toUpperCase();
   return (
     <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#0B6B4B,#094d36)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
-      <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Poppins',sans-serif", letterSpacing: '0.05em', userSelect: 'none' }}>{initials}</span>
+      <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, fontFamily: "'Poppins',sans-serif", letterSpacing: '0.05em', userSelect: 'none' }}>{initials}</span>
     </div>
   );
 };
@@ -24,7 +27,8 @@ interface Props { alumni: AlumniRecord; index: number; }
 ───────────────────────────────────────────────────────── */
 const ProfileModal: React.FC<{ alumni: AlumniRecord; open: boolean; onClose: () => void }> = ({ alumni, open, onClose }) => {
   const { photoMap } = useAlumniPhotos();
-  const photo = resolvePhoto(alumni.id, alumni.fullName, alumni.photoUrl, photoMap);
+  const [imgErr, setImgErr] = useState(false);
+  const photo = photoMap[alumni.id] || alumni.photoUrl || null;
 
   const clean = (v?: string) =>
     !v || ['—', '-', 'NA', 'None', 'none', 'no nickname', 'No nickname'].includes(v.trim()) ? '' : v.trim();
@@ -70,7 +74,9 @@ const ProfileModal: React.FC<{ alumni: AlumniRecord; open: boolean; onClose: () 
             {/* Avatar overlapping cover */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: -52, position: 'relative', zIndex: 1 }}>
               <div style={{ width: 104, height: 104, borderRadius: '50%', overflow: 'hidden', border: '4px solid #fff', boxShadow: '0 8px 24px rgba(11,107,75,0.22)', background: '#f3f4f6', flexShrink: 0 }}>
-                {photo ? <img src={photo} alt={alumni.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <DefaultAvatar name={alumni.fullName} />}
+                {photo && !imgErr
+                ? <img src={photo} alt={alumni.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgErr(true)} />
+                : <DefaultAvatar name={alumni.fullName} />}
               </div>
               <h2 style={{ fontWeight: 900, fontSize: '1.2rem', color: '#111827', margin: '0.75rem 0 0', textAlign: 'center', padding: '0 1.5rem', lineHeight: 1.3 }}>{alumni.fullName}</h2>
               {nickname && <p style={{ fontSize: '0.78rem', color: '#9CA3AF', fontStyle: 'italic', margin: '0.2rem 0 0' }}>"{nickname}"</p>}
@@ -142,9 +148,10 @@ const AlumniCard: React.FC<Props> = ({ alumni, index }) => {
     if (photoMap[alumni.id]) return [photoMap[alumni.id]];
     const locals = localCandidates(alumni.id, alumni.fullName);
     const url = alumni.photoUrl;
+    // Direct URL (uploaded photo from profile)
+    if (url && (url.startsWith('http') || url.startsWith('data:'))) return [url, ...locals];
     if (url && url.startsWith('/')) return [url, ...locals];
-    const excel = url && !url.includes('drive.google.com') && !url.includes('linkedin.com') ? url : null;
-    return excel ? [...locals, excel] : locals;
+    return locals;
   };
 
   const [candidates] = useState<string[]>(buildCandidates);
