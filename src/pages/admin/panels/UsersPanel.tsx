@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { FiRefreshCw, FiPlus, FiEdit2, FiTrash2, FiKey, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiRefreshCw, FiPlus, FiEdit2, FiTrash2, FiKey, FiSearch, FiChevronLeft, FiChevronRight, FiDownload } from 'react-icons/fi';
 import { useAdminUsers, type AdminUserRow } from '../../../hooks/useAdminUsers';
 import { Modal, FormField, SaveBtn, Badge } from '../AdminComponents';
+import * as XLSX from 'xlsx';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
+import { ALUMNI_DATA } from '../../../lib/alumniData';
 
 const ROLES   = ['alumni','student','teacher','mentor','recruiter','admin','superadmin'];
 const STATUSES = ['active','inactive','pending','banned'];
@@ -63,6 +67,58 @@ const UsersPanel: React.FC = () => {
     setPage(1);
   };
 
+  const handleExport = async () => {
+    // 1. Firestore users
+    const snap = await getDocs(collection(db, 'users'));
+    const firestoreRows = snap.docs
+      .filter(d => d.data().full_name)
+      .map(d => {
+        const u = d.data();
+        return {
+          'Full Name':     u.full_name ?? '',
+          'Nickname':      u.nickname ?? '',
+          'Batch':         u.batch_year ?? '',
+          'Designation':   u.designation ?? '',
+          'Organization':  u.organization ?? '',
+          'Profession':    u.profession ?? '',
+          'Qualification': u.qualification ?? '',
+          'City':          u.city ?? '',
+          'Country':       u.country ?? 'India',
+          'LinkedIn':      u.linkedin_url ?? '',
+          'Facebook':      u.facebook_url ?? '',
+          'Registered At': u.created_at?.toDate?.()?.toLocaleDateString?.() ?? '',
+          'Source':        'Registered',
+        };
+      });
+
+    // 2. Static ALUMNI_DATA — skip only if same id already in firestore
+    const fbIds = new Set(snap.docs.map(d => d.id));
+    const staticRows = ALUMNI_DATA
+      .filter(a => !fbIds.has(a.id))
+      .map(a => ({
+        'Full Name':     a.fullName,
+        'Nickname':      a.nickname ?? '',
+        'Batch':         a.batch,
+        'Designation':   a.designation,
+        'Organization':  a.organization,
+        'Profession':    a.profession,
+        'Qualification': a.qualification,
+        'City':          a.city,
+        'Country':       a.country,
+        'LinkedIn':      a.linkedinUrl ?? '',
+        'Facebook':      a.facebookUrl ?? '',
+        'Registered At': a.registeredAt,
+        'Source':        'Excel Import',
+      }));
+
+    const allRows = [...firestoreRows, ...staticRows];
+    const ws = XLSX.utils.json_to_sheet(allRows);
+    ws['!cols'] = [22,14,8,24,28,20,22,14,14,36,36,14,14].map(w => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Alumni');
+    XLSX.writeFile(wb, `all_alumni_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
   const users = result?.data ?? [];
   const total = result?.total ?? 0;
   const lastPage = result?.last_page ?? 1;
@@ -80,6 +136,9 @@ const UsersPanel: React.FC = () => {
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button onClick={() => mutate()} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #E5E7EB', background: '#fff', borderRadius: '0.6rem', padding: '0.5rem 0.875rem', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: '#6B7280' }}>
             <FiRefreshCw size={13} /> Refresh
+          </button>
+          <button onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#16A34A', color: '#fff', border: 'none', borderRadius: '0.6rem', padding: '0.5rem 0.875rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>
+            <FiDownload size={13} /> Download Excel
           </button>
           <button onClick={openAdd} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#0B6B4B', color: '#fff', border: 'none', borderRadius: '0.6rem', padding: '0.5rem 0.875rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>
             <FiPlus size={13} /> Add User

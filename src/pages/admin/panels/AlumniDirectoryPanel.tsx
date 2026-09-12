@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiSearch, FiLinkedin, FiFacebook, FiUser } from 'react-icons/fi';
+import { FiSearch, FiLinkedin, FiFacebook, FiUser, FiDownload } from 'react-icons/fi';
 import { useAlumniData } from '../../../hooks/useAlumniData';
 import { resolvePhoto } from '../../../lib/alumniPhotos';
 import { useAlumniPhotos } from '../../../context/AlumniPhotoContext';
 import { api } from '../../../lib/api';
+import * as XLSX from 'xlsx';
+import { ALUMNI_DATA } from '../../../lib/alumniData';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 
 const PAGE_SIZE = 20;
 
@@ -34,14 +38,74 @@ const AlumniDirectoryPanel: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(1); };
 
+  const handleExport = async () => {
+    // Fetch all Firestore users
+    const snap = await getDocs(collection(db, 'users'));
+    const firestoreUsers = snap.docs
+      .filter(d => d.data().full_name)
+      .map(d => {
+        const u = d.data();
+        return {
+          'Full Name':     u.full_name ?? '',
+          'Nickname':      u.nickname ?? '',
+          'Batch':         u.batch_year ?? '',
+          'Designation':   u.designation ?? '',
+          'Organization':  u.organization ?? '',
+          'Profession':    u.profession ?? '',
+          'Qualification': u.qualification ?? '',
+          'City':          u.city ?? '',
+          'Country':       u.country ?? 'India',
+          'LinkedIn':      u.linkedin_url ?? '',
+          'Facebook':      u.facebook_url ?? '',
+          'Registered At': u.created_at?.toDate?.()?.toLocaleDateString?.() ?? '',
+          'Source':        'Registered',
+        };
+      });
+
+    const firestoreNames = new Set(snap.docs.map(d => d.id));
+
+    // Merge with static ALUMNI_DATA (avoid duplicates by id)
+    const staticRows = ALUMNI_DATA
+      .filter(a => !firestoreNames.has(a.id))
+      .map(a => ({
+        'Full Name':     a.fullName,
+        'Nickname':      a.nickname ?? '',
+        'Batch':         a.batch,
+        'Designation':   a.designation,
+        'Organization':  a.organization,
+        'Profession':    a.profession,
+        'Qualification': a.qualification,
+        'City':          a.city,
+        'Country':       a.country,
+        'LinkedIn':      a.linkedinUrl ?? '',
+        'Facebook':      a.facebookUrl ?? '',
+        'Registered At': a.registeredAt,
+        'Source':        'Excel Import',
+      }));
+
+    const allRows = [...firestoreUsers, ...staticRows];
+    const ws = XLSX.utils.json_to_sheet(allRows);
+    // Column widths
+    ws['!cols'] = [22,14,8,24,28,20,22,14,14,36,36,14,14].map(w => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Alumni');
+    XLSX.writeFile(wb, `alumni_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
   return (
     <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1.5rem', boxShadow: '0 2px 16px rgba(0,0,0,0.07)', border: '1px solid rgba(229,231,235,0.5)' }}>
       {/* Header */}
-      <div style={{ marginBottom: '1.25rem' }}>
-        <h2 style={{ fontWeight: 900, fontSize: '1.1rem', color: '#111827', margin: 0 }}>Alumni Directory</h2>
-        <p style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: '0.25rem 0 0' }}>
-          {total} registered alumni
-        </p>
+      <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <h2 style={{ fontWeight: 900, fontSize: '1.1rem', color: '#111827', margin: 0 }}>Alumni Directory</h2>
+          <p style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: '0.25rem 0 0' }}>{total} registered alumni</p>
+        </div>
+        <button
+          onClick={handleExport}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0B6B4B', color: '#fff', border: 'none', borderRadius: '0.6rem', padding: '0.55rem 1.1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer' }}
+        >
+          <FiDownload size={15} /> Download Excel
+        </button>
       </div>
 
       {/* Filters */}
