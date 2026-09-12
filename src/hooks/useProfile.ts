@@ -120,6 +120,8 @@ export function useProfile(user: FirebaseUser | null) {
         const fsData: Record<string, unknown> = {};
         FIRESTORE_FIELDS.forEach(k => { if (k in updates) fsData[k] = updates[k]; });
         if (Object.keys(fsData).length > 0) {
+          // Remove undefined values — Firestore doesn't accept them
+          Object.keys(fsData).forEach(k => fsData[k] === undefined && delete fsData[k]);
           setDoc(doc(db, 'profiles', user.uid), fsData, { merge: true }).catch(() => {});
         }
       }
