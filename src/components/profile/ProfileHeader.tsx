@@ -106,7 +106,7 @@ const ProfileHeader: React.FC<Props> = ({
   const navigate = useNavigate();
 
   // own profile = viewer is the profile owner
-  const isOwnProfile = !viewerUid || viewerUid === profile.uid;
+  const isOwnProfile = !viewerUid || !profile.uid || viewerUid === profile.uid;
 
   // Check follow status on mount
   useEffect(() => {
