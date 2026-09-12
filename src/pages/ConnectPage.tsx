@@ -433,7 +433,7 @@ const ConnectPage: React.FC = () => {
                     >
                       <FiEye size={12} /> View
                     </button>
-                    {u.uid && me && (
+                    {u.uid && me ? (
                       <button
                         onClick={() => handleFollow(u)}
                         className={`flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl border transition-all ${
@@ -441,13 +441,20 @@ const ConnectPage: React.FC = () => {
                             ? 'bg-primary/10 border-primary text-primary'
                             : pendingFollow.has(u.uid!)
                               ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
-                              : 'border-border text-gray-500 hover:border-primary hover:text-primary'
+                              : 'bg-primary border-primary text-white hover:bg-primary/90'
                         }`}
                       >
                         {isFollowed ? <FiUserCheck size={12} /> : <FiUserPlus size={12} />}
                         {isFollowed ? 'Following' : pendingFollow.has(u.uid!) ? 'Requested' : '+ Follow'}
                       </button>
-                    )}
+                    ) : u.uid && !me ? (
+                      <button
+                        onClick={() => window.location.href = '/auth/login'}
+                        className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl border border-primary text-primary hover:bg-primary/10 transition-all"
+                      >
+                        <FiUserPlus size={12} /> Follow
+                      </button>
+                    ) : null}
                   </div>
                 </motion.div>
               );
