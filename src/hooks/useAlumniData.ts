@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { api } from '../lib/api';
 import type { AlumniRecord } from '../types/alumni';
@@ -104,20 +104,21 @@ function mapRow(r: any): AlumniRecord {
   };
 }
 
-function firestoreUserToAlumni(d: any, uid: string): AlumniRecord {
+function firestoreUserToAlumni(d: any, uid: string, profile?: any): AlumniRecord {
+  const p = profile ?? {};
   return {
     id:            `fb_${uid}`,
-    fullName:      d.full_name ?? '',
-    batch:         d.batch_year ?? '',
-    designation:   d.designation ?? '',
-    organization:  d.organization ?? '',
-    profession:    d.profession ?? '',
-    qualification: d.qualification ?? '',
-    city:          d.city ?? '',
-    country:       d.country ?? 'India',
-    photoUrl:      d.avatar ?? d.photo_url ?? undefined,
-    linkedinUrl:   d.linkedin_url ?? undefined,
-    facebookUrl:   d.facebook_url ?? undefined,
+    fullName:      p.name      ?? d.full_name ?? '',
+    batch:         p.batch     ?? d.batch_year ?? '',
+    designation:   p.designation  ?? d.designation  ?? '',
+    organization:  p.company      ?? d.organization  ?? '',
+    profession:    p.industry     ?? d.profession    ?? '',
+    qualification: p.qualification ?? d.qualification ?? '',
+    city:          p.city      ?? d.city    ?? '',
+    country:       p.country   ?? d.country ?? 'India',
+    photoUrl:      p.photoURL  ?? d.avatar  ?? d.photo_url ?? undefined,
+    linkedinUrl:   p.socialLinks?.linkedin ?? d.linkedin_url ?? undefined,
+    facebookUrl:   p.socialLinks?.facebook ?? d.facebook_url ?? undefined,
     registeredAt:  d.created_at?.toDate?.()?.toISOString?.() ?? '',
   };
 }
@@ -133,10 +134,15 @@ export function useAlumniData(filters: Filters = {}) {
 
   // Real-time Firestore listener — runs once, updates whenever user registers
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+    const unsub = onSnapshot(collection(db, 'users'), async (snap) => {
+      // Fetch all profiles in parallel
+      const profilesSnap = await getDocs(collection(db, 'profiles'));
+      const profileMap: Record<string, any> = {};
+      profilesSnap.docs.forEach(d => { profileMap[d.id] = d.data(); });
+
       const users = snap.docs
         .filter((d) => d.data().full_name)
-        .map((d) => firestoreUserToAlumni(d.data(), d.id));
+        .map((d) => firestoreUserToAlumni(d.data(), d.id, profileMap[d.id]));
       firestoreRef.current = users;
       setFirestoreAlumni(users);
     });
