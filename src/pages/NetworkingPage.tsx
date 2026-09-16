@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUsers, FiTrendingUp, FiGlobe, FiSearch, FiMapPin, FiBriefcase, FiLinkedin } from 'react-icons/fi';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ALUMNI_DATA } from '../lib/alumniData';
+import { useCMS } from '../context/CMSContext';
 
 const NetworkingPage: React.FC = () => {
   const location = useLocation();
@@ -18,6 +20,17 @@ const NetworkingPage: React.FC = () => {
     else navigate('/networking');
   };
 
+  const { cms } = useCMS();
+  const registeredStat = cms.stats.find(s => s.label === 'Registered Alumni');
+  const totalAlumni = registeredStat ? registeredStat.value : ALUMNI_DATA.length;
+  const entrepreneurKeywords = ['entrepreneur', 'founder', 'startup', 'self employed', 'business', 'owner', 'promoter'];
+  const investorKeywords = ['investor', 'investment', 'venture', 'finance', 'wealth', 'banking', 'capital', 'trader'];
+  const startupCount = ALUMNI_DATA.filter(a =>
+    entrepreneurKeywords.some(k => (a.profession ?? '').toLowerCase().includes(k) || (a.designation ?? '').toLowerCase().includes(k))
+  ).length;
+  const investorCount = ALUMNI_DATA.filter(a =>
+    investorKeywords.some(k => (a.profession ?? '').toLowerCase().includes(k) || (a.designation ?? '').toLowerCase().includes(k))
+  ).length;
   const currentItems: any[] = [];
 
   return (
@@ -36,9 +49,9 @@ const NetworkingPage: React.FC = () => {
         {/* Stats row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {[
-            { icon: FiUsers, title: 'Professionals', count: '12,000+', desc: 'Alumni professionals across industries', color: 'from-primary/10 to-primary/5' },
-            { icon: FiTrendingUp, title: 'Startup Founders', count: '500+', desc: 'Alumni entrepreneurs and startup founders', color: 'from-accent/10 to-accent/5' },
-            { icon: FiGlobe, title: 'Investors', count: '200+', desc: 'Alumni investors and venture capitalists', color: 'from-blue-500/10 to-blue-500/5' },
+            { icon: FiUsers, title: 'Professionals', count: `${totalAlumni}+`, desc: 'Alumni professionals across industries', color: 'from-primary/10 to-primary/5' },
+            { icon: FiTrendingUp, title: 'Startup Founders', count: `${startupCount}+`, desc: 'Alumni entrepreneurs and startup founders', color: 'from-accent/10 to-accent/5' },
+            { icon: FiGlobe, title: 'Investors', count: `${investorCount}+`, desc: 'Alumni investors and venture capitalists', color: 'from-blue-500/10 to-blue-500/5' },
           ].map((cat, i) => {
             const Icon = cat.icon;
             return (

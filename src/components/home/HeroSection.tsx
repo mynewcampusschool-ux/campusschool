@@ -122,7 +122,7 @@ const HeroSection: React.FC = () => {
                     {[
                       { val: `${alumniCount}+`, lbl: 'Alumni' },
                       { val: '25+', lbl: 'Countries' },
-                      { val: '50+', lbl: 'Years' },
+                      { val: '54+', lbl: 'Years' },
                       { val: '10+', lbl: 'Companies' },
                     ].map((b) => (
                       <div key={b.lbl} style={{ textAlign: 'center' }}>

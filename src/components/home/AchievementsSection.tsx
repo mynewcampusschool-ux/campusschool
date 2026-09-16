@@ -4,10 +4,10 @@ import { useInView } from 'react-intersection-observer';
 
 const achievements = [
   { icon: '🏆', value: '#1', label: 'Top School', sub: 'Uttarakhand 2024' },
-  { icon: '🎓', value: '25+', label: 'Years of Excellence', sub: 'Est. 1972' },
-  { icon: '🌍', value: '10+', label: 'Countries', sub: 'Alumni Presence' },
+  { icon: '🎓', value: '54+', label: 'Years of Excellence', sub: 'Est. 1972' },
+  { icon: '🌍', value: '25+', label: 'Countries', sub: 'Alumni Presence' },
   { icon: '🏅', value: '10+', label: 'National Awards', sub: 'Academic & Sports' },
-  { icon: '💼', value: '55+', label: 'Companies', sub: 'Alumni Employed' },
+  { icon: '💼', value: '86+', label: 'Companies', sub: 'Alumni Employed' },
   { icon: '📚', value: '1,000+', label: 'Students', sub: 'Currently Enrolled' },
 ];
 
